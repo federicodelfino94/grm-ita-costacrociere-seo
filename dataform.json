@@ -1,0 +1,6 @@
+{
+    "warehouse": "bigquery",
+    "defaultSchema": "dataform",
+    "assertionSchema": "dataform_assertions",
+    "defaultDatabase": "grm-ita-costa-crociere"
+}
