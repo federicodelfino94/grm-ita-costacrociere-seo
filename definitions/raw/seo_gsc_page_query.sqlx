@@ -1,0 +1,7 @@
+config {
+  name: "seo_gsc_page_query",
+  schema: "seo_dashboard_02_raw",
+  type: "incremental",
+  uniqueKey: []
+}
+

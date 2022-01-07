@@ -1,0 +1,20 @@
+config {
+  name: "seo_ga_source_traffic",
+  schema: "seo_dashboard_02_raw",
+  type: "incremental",
+  uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping"]
+}
+
+with up_to_date as (
+  select
+    * except (dt_created, dt_updated, dt_filename),
+    row_number() over (
+      partition by gaaccountid,gadate,gaprofileid,gaprofilename,gawebpropertyid,gawebpropertyname,gasourcemedium,gadevicecategory,gachannelgrouping
+      order by dt_updated desc
+    ) rank
+  from ${ref("seo_dashboard_01_temp", "temp_seo_ga_source_traffic")}
+)
+select 
+  * except (rank)
+from up_to_date
+where rank = 1
