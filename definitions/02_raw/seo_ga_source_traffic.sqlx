@@ -12,7 +12,7 @@ with up_to_date as (
       partition by gaaccountid,gadate,gaprofileid,gaprofilename,gawebpropertyid,gawebpropertyname,gasourcemedium,gadevicecategory,gachannelgrouping
       order by dt_updated desc
     ) rank
-  from ${ref("seo_dashboard_01_temp", "temp_seo_ga_source_traffic")}
+  from ${ref("seo_dashboard_01_temp", "seo_ga_source_traffic")}
 )
 select 
   * except (rank)

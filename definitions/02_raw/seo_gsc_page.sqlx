@@ -12,7 +12,7 @@ with up_to_date as (
       partition by day, site, page
       order by dt_updated desc
     ) rank
-  from ${ref("seo_dashboard_01_temp", "temp_seo_gsc_page")}
+  from ${ref("seo_dashboard_01_temp", "seo_gsc_page")}
 )
 select 
   * except (rank)

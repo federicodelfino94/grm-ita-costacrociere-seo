@@ -1,0 +1,32 @@
+config {
+  type: "assertion"
+}
+
+select 
+  dt_filename
+  , gaaccountid
+  , gadate
+  , gaprofileid
+  , gaprofilename
+  , gawebpropertyid
+  , gawebpropertyname
+  , gasourcemedium
+  , gadevicecategory
+  , gachannelgrouping
+  , galandingpagepath
+  , count(*)
+from
+  ${ref("seo_dashboard_01_temp", "seo_ga_source_traffic")}
+group by
+  dt_filename
+  , gaaccountid
+  , gadate
+  , gaprofileid
+  , gaprofilename
+  , gawebpropertyid
+  , gawebpropertyname
+  , gasourcemedium
+  , gadevicecategory
+  , gachannelgrouping
+  , galandingpagepath
+having count(*) > 1

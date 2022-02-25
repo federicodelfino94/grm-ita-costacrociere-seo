@@ -1,15 +1,15 @@
 declare({
-    name: "temp_seo_ga_source_traffic",
+    name: "seo_ga_source_traffic",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
 declare({
-    name: "temp_seo_gsc_page",
+    name: "seo_gsc_page",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
 declare({
-    name: "temp_seo_gsc_page_query",
+    name: "seo_gsc_page_query",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
