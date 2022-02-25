@@ -1,20 +1,13 @@
 config {
+  //type: "incremental",
+  type: "table",
   name: "seo_gsc_page_query",
   schema: "seo_dashboard_02_raw",
-  type: "incremental",
-  uniqueKey: ["day", "site", "page", "query"]
+  dependencies: ["temp seo_gsc_page_query"],
+  //uniqueKey: ["day", "site", "page", "query"],
+  assertions: {
+    uniqueKey: ["day", "site", "page", "query"]
+  }
 }
 
-with up_to_date as (
-  select
-    * except (dt_created, dt_updated, dt_filename),
-    row_number() over (
-      partition by day, site, page, query
-      order by dt_updated desc
-    ) rank
-  from ${ref("seo_dashboard_01_temp", "temp_seo_gsc_page_query")}
-)
-select 
-  * except (rank)
-from up_to_date
-where rank = 1
+${get_last_values_by_pk("seo_dashboard_01_temp", "seo_gsc_page_query", "day, site, page, query")}

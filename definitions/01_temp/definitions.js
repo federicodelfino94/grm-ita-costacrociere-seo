@@ -14,12 +14,12 @@ declare({
     description: ""
 })
 declare({
-    name: "temp_seo_gsc_query",
+    name: "seo_gsc_query",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
 declare({
-    name: "temp_seo_gsc_total",
+    name: "seo_gsc_total",
     schema: "seo_dashboard_01_temp",
     description: ""
 })

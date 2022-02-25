@@ -1,0 +1,6 @@
+config {
+  type: "assertion"
+}
+
+
+${pk_uniqueness("seo_dashboard_01_temp", "seo_gsc_page_query", "dt_filename, day, site, page, query")}

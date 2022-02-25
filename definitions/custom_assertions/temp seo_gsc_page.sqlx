@@ -2,17 +2,4 @@ config {
   type: "assertion"
 }
 
-select 
-  dt_filename
-  , day
-  , site
-  , page
-  , count(*)
-from
-  ${ref("seo_dashboard_01_temp", "seo_gsc_page")}
-group by
-  dt_filename
-  , day
-  , site
-  , page
-having count(*) > 1
+${pk_uniqueness("seo_dashboard_01_temp", "seo_gsc_page_query", "dt_filename, day, site, page")}
