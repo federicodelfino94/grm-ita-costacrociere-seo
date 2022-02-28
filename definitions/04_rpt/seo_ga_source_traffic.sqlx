@@ -1,0 +1,64 @@
+config {
+  type: "incremental",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_ga_source_traffic",
+  uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping"],
+  assertions: {
+    uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping"]
+  },
+  bigquery: {
+    partitionBy: "gadate",
+    clusterBy: ["gaprofileid", "gawebpropertyid", "gadevicecategory", "gachannelgrouping"]
+  }
+}
+
+select 
+  gaaccountid
+  ,gadate
+  ,cast(CONCAT(FORMAT_DATETIME("%Y", gadate), FORMAT_DATETIME("%m", gadate)) as numeric) as year_month
+  ,gaprofileid
+  ,gaprofilename
+  ,gawebpropertyid
+  ,gawebpropertyname
+  ,lower(gadevicecategory) as gadevicecategory 
+  ,lower(gachannelgrouping) as gachannelgrouping
+  -- ,galandingpagepath
+  , case
+      when gasourcemedium like '%google.zip%'
+        then 'google.zip'
+      when gasourcemedium like '%facebook_utm_medium%'
+        then 'facebook'
+      when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
+        then 'not set'
+      else lower(gasourcemedium)
+    end as gasourcemedium
+  , sum(gabounces) as gabounces
+  , sum(ganewusers) as ganewusers
+  , sum(gapageviews) as gapageviews
+  , sum(gasessions) as gasessions
+  , avg(gasessionduration) as gasessionduration
+  , avg(gatimeonpage) as gatimeonpage
+  , sum(gatotalevents) as gatotalevents
+  , sum(gatransactions) as gatransactions
+  , sum(gausers) as gausers
+from ${ref("seo_dashboard_02_raw", "seo_ga_source_traffic")}
+group by
+  gaaccountid
+  ,gadate
+  ,cast(CONCAT(FORMAT_DATETIME("%Y", gadate), FORMAT_DATETIME("%m", gadate)) as numeric)
+  ,gaprofileid
+  ,gaprofilename
+  ,gawebpropertyid
+  ,gawebpropertyname
+  ,lower(gadevicecategory) 
+  ,lower(gachannelgrouping)
+  -- ,galandingpagepath
+  , case
+      when gasourcemedium like '%google.zip%'
+        then 'google.zip'
+      when gasourcemedium like '%facebook_utm_medium%'
+        then 'facebook'
+      when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
+        then 'not set'
+      else lower(gasourcemedium)
+    end

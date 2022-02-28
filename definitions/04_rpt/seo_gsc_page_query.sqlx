@@ -1,0 +1,15 @@
+config {
+  type: "incremental",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_gsc_page_query",
+  uniqueKey: ["day", "site", "page", "query"],
+  assertions: {
+    uniqueKey: ["day", "site", "page", "query"]
+  },
+  bigquery: {
+    partitionBy: "day",
+    clusterBy: ["site", "page", "query"]
+  }
+}
+
+

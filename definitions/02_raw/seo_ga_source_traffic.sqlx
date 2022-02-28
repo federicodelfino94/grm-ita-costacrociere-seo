@@ -6,11 +6,41 @@ config {
   uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping", "galandingpagepath"],
   assertions: {
     uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping", "galandingpagepath"]
+  },
+  bigquery: {
+    partitionBy: "gadate",
+    clusterBy: ["gaprofileid", "gawebpropertyid", "gadevicecategory", "gachannelgrouping"]
   }
 }
 
-${get_last_values_by_pk("seo_dashboard_01_temp", "seo_ga_source_traffic", "gaaccountid, gadate, gaprofileid, gaprofilename, gawebpropertyid, gawebpropertyname, gasourcemedium, gadevicecategory, gachannelgrouping, galandingpagepath")}
+-- pre_operations {
+--     declare ts default (
+--     ${when(
+--         incremental(),
+--           `select min(min_business_date)
+--           from ${ref("seo_dashboard_utils", "data_flow_insertion_logs")}
+--           where data_flow_name = 'seo_ga_source_traffic'
+--           and file_upload_ts = (
+--               select max(file_upload_ts) 
+--               from ${ref("seo_dashboard_utils", "data_flow_insertion_logs")}
+--               where data_flow_name = 'seo_ga_source_traffic'
+--           )`
+--         ,
+--           `select date("2020-01-01")`
+--     )}
+--   )
+--   ---
+--   delete from ${self()}
+--   where gadate >= ts
+-- }
 
+-- select 
+--   * except (dt_created, dt_updated, dt_filename)
+-- from ${ref("seo_dashboard_01_temp", "seo_ga_source_traffic")}
+-- where gadate >= ts
+
+
+${get_last_values_by_pk("seo_dashboard_01_temp", "seo_ga_source_traffic", "gaaccountid, gadate, gaprofileid, gaprofilename, gawebpropertyid, gawebpropertyname, gasourcemedium, gadevicecategory, gachannelgrouping, galandingpagepath")}
 
 -- with up_to_date as (
 --   select
