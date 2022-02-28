@@ -1,0 +1,12 @@
+config {
+  type: "view",
+  schema: "seo_dashboard_04_rpt",
+  name: "D_calendar"
+}
+
+SELECT
+  d as day
+  , extract(year from d) as Year
+  , extract(month from d) as Month_Number
+  , FORMAT_DATE('%B', d) as Month 
+FROM UNNEST(GENERATE_DATE_ARRAY('2018-12-01', CURRENT_DATE(), INTERVAL 1 month)) d

@@ -1,0 +1,60 @@
+config {
+  type: "view",
+  schema: "seo_dashboard_04_rpt",
+  name: "D_country"
+}
+
+with m as (
+  select 
+    'Italy' as Country,
+    'Main' as CountryGroup
+  UNION ALL
+  select 
+    'Denmark' as Country,
+    'Secondary' as CountryGroup
+  UNION ALL
+  select 
+    'Germany' as Country,
+    'Main' as CountryGroup
+  UNION ALL
+  select 
+    'Spain' as Country,
+    'Main' as CountryGroup
+  UNION ALL
+  select 
+    'France' as Country,
+    'Main' as CountryGroup
+  UNION ALL
+  select 
+    'UK' as Country,
+    'Secondary' as CountryGroup
+  UNION ALL
+  select 
+    'Switzerland' as Country,
+    'Main' as CountryGroup
+  UNION ALL
+  select 
+    'Argentina' as Country,
+    'Secondary' as CountryGroup
+  UNION ALL
+  select 
+    'Brazil' as Country,
+    'Secondary' as CountryGroup
+  UNION ALL
+  select 
+    'Austria' as Country,
+    'Main' as CountryGroup
+  UNION ALL
+  select 
+    'Sweden' as Country,
+    'Secondary' as CountryGroup
+  UNION ALL
+  select 
+    'Russia' as Country,
+    'Secondary' as CountryGroup
+)
+select 
+  Country
+  , CountryGroup
+  , ROW_NUMBER() OVER () as ID_Country
+from m
