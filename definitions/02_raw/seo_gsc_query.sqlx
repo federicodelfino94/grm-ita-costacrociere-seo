@@ -1,10 +1,10 @@
 config {
-  //type: "incremental",
-  type: "table",
+  type: "incremental",
+  //type: "table",
   name: "seo_gsc_query",
   schema: "seo_dashboard_02_raw",
   dependencies: ["temp seo_gsc_query"],
-  //uniqueKey: ["day", "site", "query"],
+  uniqueKey: ["day", "site", "query"],
   assertions: {
     uniqueKey: ["day", "site", "query"]
   }

@@ -1,8 +1,24 @@
 config {
-  type: "view"
+  type: "incremental",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_gsc_page",
+  uniqueKey: ["day", "site", "page"],
+  assertions: {
+    uniqueKey: ["day", "site", "page"]
+  },
+  bigquery: {
+    partitionBy: "day",
+    clusterBy: ["site", "page"]
+  }
 }
 
--- select *
--- from 
---   ${ref("table_name")} / schema.table_name
--- read more about ref() in the documentation tab -->
+select
+  day
+  , cast(CONCAT(FORMAT_DATETIME("%Y", day), FORMAT_DATETIME("%m", day)) as numeric) as year_month
+  , lower(site) as site
+  , lower(page) as page
+  -- , lower(trim(query)) as query
+  , impressions
+  , clicks
+  , position
+from ${ref("seo_dashboard_02_raw", "seo_gsc_page")}

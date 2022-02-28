@@ -1,14 +1,14 @@
 config {
   type: "incremental",
   schema: "seo_dashboard_04_rpt",
-  name: "seo_gsc_query",
-  uniqueKey: ["day", "site", "query"],
+  name: "seo_gsc_total",
+  uniqueKey: ["day", "site"],
   assertions: {
-    uniqueKey: ["day", "site", "query"]
+    uniqueKey: ["day", "site"]
   },
   bigquery: {
     partitionBy: "day",
-    clusterBy: ["site", "query"]
+    clusterBy: ["site"]
   }
 }
 
@@ -17,15 +17,12 @@ select
   , cast(CONCAT(FORMAT_DATETIME("%Y", day), FORMAT_DATETIME("%m", day)) as numeric) as year_month
   , lower(site) as site
   -- , lower(page) as page
-  , lower(trim(query)) as query
+  -- , lower(trim(query)) as query
   , sum(impressions) as impressions
   , sum(clicks) as clicks
   , avg(position) as position
-from ${ref("seo_dashboard_02_raw", "seo_gsc_page_query")}
-where query not in ( '', ' ', '  ')
+from ${ref("seo_dashboard_02_raw", "seo_gsc_page")}
 group by 
-   day
+  day
   , cast(CONCAT(FORMAT_DATETIME("%Y", day), FORMAT_DATETIME("%m", day)) as numeric)
-  , lower(site) as site
-  -- , lower(page) as page
-  , lower(trim(query))
+  , lower(site)
