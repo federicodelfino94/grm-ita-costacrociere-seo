@@ -1,22 +1,29 @@
 config {
-//  type: "incremental",
-  type: "table",
-  schema: "seo_dashboard_04_rpt",
+  type: "incremental",
   name: "seo_gsc_page_query",
-//  uniqueKey: ["day", "site", "page", "query"],
+  schema: "seo_dashboard_04_rpt",
+  dependencies: ["data_flow_insertion_log"],
+  uniqueKey: ["year_month", "site", "page", "query"],
   assertions: {
     uniqueKey: ["year_month", "site", "page", "query"]
   },
   bigquery: {
-    partitionBy: "year_month",
-    clusterBy: ["page", "query"]
+    partitionBy: "DATE_TRUNC(year_month, MONTH)",
+    clusterBy: ["site", "page", "query"]
   }
+}
+
+pre_operations {
+  declare ts default (
+    select MIN(file_upload_ts) 
+    from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
+    where ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
+    and processed_flag = FALSE
+  )
 }
 
 with tmp as (
   select
-    -- DO NOT SAFE DAY GRANULARITY -> table too large to be ingested in PBI
-    -- day
     cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month 
     , lower(site) as site
     , lower(page) as page
@@ -55,10 +62,13 @@ with tmp as (
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position
-  from ${ref("seo_dashboard_02_raw", "seo_gsc_page_query")}
-  where query not in ( '', ' ', '  ')
+  from ${ref("seo_dashboard_01_temp", "seo_gsc_page_query")}
+  ${ when(
+      incremental(),
+      `WHERE dt_created >= ts`
+    )
+  }
   group by 
-    -- day
     cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) 
     , lower(site)
     , lower(page)
@@ -72,3 +82,11 @@ select
 from tmp 
 left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Country
+
+
+post_operations {
+  UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
+  SET processed_flag = TRUE
+  where file_upload_ts >= ts
+  and ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
+}

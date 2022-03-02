@@ -5,9 +5,7 @@ config {
 }
 
 select 
-  -- day
   year_month
-  -- , site
   -- , Country
   , ID_Country
   , impressions

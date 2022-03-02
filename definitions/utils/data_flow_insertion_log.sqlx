@@ -1,0 +1,85 @@
+config {
+  type: "incremental",
+  schema: "seo_dashboard_utils",
+  name: "data_flow_insertion_log",
+  uniqueKey: ["data_flow_name", "file_upload_ts"],
+  assertions: {
+    uniqueKey: ["data_flow_name", "file_upload_ts"]
+  },
+  bigquery: {
+    partitionBy: "RANGE_BUCKET(ID_data_flow, GENERATE_ARRAY(1,10))",
+    clusterBy: ["file_upload_ts"]
+  }
+}
+
+pre_operations {
+  declare last_insert_ts_gsc_query default (
+    select MAX(file_upload_ts) 
+    from ${self()}
+    where ID_data_flow = 1 -- data_flow_name = 'seo_gsc_query'
+  )
+  ---
+  declare last_insert_ts_gsc_page_query default (
+    select MAX(file_upload_ts) 
+    from ${self()}
+    where ID_data_flow = 2 -- data_flow_name = 'seo_gsc_page_query'
+  )
+  ---
+  declare last_insert_ts_gsc_total default (
+    select MAX(file_upload_ts) 
+    from ${self()}
+    where ID_data_flow = 3 -- data_flow_name = 'seo_gsc_total'
+  )
+}
+
+select
+  1 as ID_data_flow -- required for partitioning -> one value for each data flow
+	, 'seo_gsc_query' as data_flow_name  -- partitionBy dt_created, clusterBy day
+  , dt_filename
+	, dt_created as file_upload_ts
+	, max(day) as max_business_date
+	, min(day) as min_business_date
+	, FALSE as processed_flag
+from ${ref("seo_dashboard_01_temp", "seo_gsc_query")}
+${ when(
+    incremental(),
+    `WHERE dt_created > last_insert_ts_gsc_query`
+  )
+}
+group by dt_filename, dt_created 
+
+UNION ALL
+
+select
+  2 as ID_data_flow -- required for partitioning -> one value for each data flow
+	, 'seo_gsc_page_query' as data_flow_name  -- partitionBy dt_created, clusterBy day
+  , dt_filename
+	, dt_created as file_upload_ts
+	, max(day) as max_business_date
+	, min(day) as min_business_date
+	, FALSE as processed_flag
+from ${ref("seo_dashboard_01_temp", "seo_gsc_page_query")}
+${ when(
+    incremental(),
+    `WHERE dt_created > last_insert_ts_gsc_page_query`
+  )
+}
+group by dt_filename, dt_created 
+
+UNION ALL
+
+select
+  3 as ID_data_flow -- required for partitioning -> one value for each data flow
+	, 'seo_gsc_total' as data_flow_name  -- partitionBy dt_created, clusterBy day
+  , dt_filename
+	, dt_created as file_upload_ts
+	, max(day) as max_business_date
+	, min(day) as min_business_date
+	, FALSE as processed_flag
+from ${ref("seo_dashboard_01_temp", "seo_gsc_total")}
+${ when(
+    incremental(),
+    `WHERE dt_created > last_insert_ts_gsc_total`
+  )
+}
+group by dt_filename, dt_created 

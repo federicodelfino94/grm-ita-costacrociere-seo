@@ -5,9 +5,7 @@ config {
 }
 
 select
-  -- day
   year_month
-  -- , site
   , query
   , Brand_Generic_SuperGeneric
   -- ,  Country
