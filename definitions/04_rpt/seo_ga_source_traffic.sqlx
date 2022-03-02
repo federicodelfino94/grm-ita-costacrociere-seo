@@ -12,53 +12,81 @@ config {
   }
 }
 
+with tmp as (
+  select 
+    gaaccountid
+    ,gadate
+    ,cast(CONCAT(FORMAT_DATETIME("%Y-%m", gadate),'-01') as date) as year_month
+    ,gaprofileid
+    ,gaprofilename
+    ,gawebpropertyid
+    ,gawebpropertyname
+    ,INITCAP(gadevicecategory) as gadevicecategory 
+    ,INITCAP(gachannelgrouping) as gachannelgrouping
+    -- ,galandingpagepath
+    , case
+        when gasourcemedium like '%google.zip%'
+          then 'google.zip'
+        when gasourcemedium like '%facebook_utm_medium%'
+          then 'facebook'
+        when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
+          then 'not set'
+        else lower(gasourcemedium)
+      end as gasourcemedium
+    , case
+        when gawebpropertyname like '%.it%' then 'Italy'
+        when gawebpropertyname like '%.fr%' then 'France' 
+        when gawebpropertyname like '%.ch%' then 'Switzerland'
+        when gawebpropertyname like '%.uk%' then 'UK'
+        when gawebpropertyname like '%.es%' then 'Spain'
+        when gawebpropertyname like '%.com/SE%' then 'Sweden'
+        when gawebpropertyname like '%.at%' then 'Austria'
+        when gawebpropertyname = 'Costa Kreuzfahrten' then 'Germany'
+        when gawebpropertyname = 'www.costacruceros.com' then 'Argentina'
+        when gawebpropertyname = 'www.costacruise.com/' then 'Denmark'
+        when gawebpropertyname = 'www.costacruzeiros.com' then 'Brazil'
+        when gawebpropertyname like '%costacruises.ru%' then 'Russia'
+        else 'N/A'
+      end as Country
+    , sum(gabounces) as gabounces
+    , sum(ganewusers) as ganewusers
+    , sum(gapageviews) as gapageviews
+    , sum(gasessions) as gasessions
+    , avg(gasessionduration) as gasessionduration
+    , avg(gatimeonpage) as gatimeonpage
+    , sum(gatotalevents) as gatotalevents
+    , sum(gatransactions) as gatransactions
+    , sum(gausers) as gausers
+  from ${ref("seo_dashboard_02_raw", "seo_ga_source_traffic")}
+  where INITCAP(gachannelgrouping) in (
+                  select INITCAP(Traffic_Type) 
+                  FROM ${ref("seo_dashboard_04_rpt", "D_traffic")}
+                ) --interessa solo il traffico tracciato in anagrafica
+  group by
+    gaaccountid
+    ,gadate
+    ,gaprofileid
+    ,gaprofilename
+    ,gawebpropertyid
+    ,gawebpropertyname
+    ,INITCAP(gadevicecategory) 
+    ,INITCAP(gachannelgrouping)
+    , case
+        when gasourcemedium like '%google.zip%'
+          then 'google.zip'
+        when gasourcemedium like '%facebook_utm_medium%'
+          then 'facebook'
+        when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
+          then 'not set'
+        else lower(gasourcemedium)
+      end
+)
 select 
-  gaaccountid
-  ,gadate
-  ,cast(CONCAT(FORMAT_DATETIME("%Y", gadate), FORMAT_DATETIME("%m", gadate)) as numeric) as year_month
-  ,gaprofileid
-  ,gaprofilename
-  ,gawebpropertyid
-  ,gawebpropertyname
-  ,lower(gadevicecategory) as gadevicecategory 
-  ,lower(gachannelgrouping) as gachannelgrouping
-  -- ,galandingpagepath
-  , case
-      when gasourcemedium like '%google.zip%'
-        then 'google.zip'
-      when gasourcemedium like '%facebook_utm_medium%'
-        then 'facebook'
-      when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
-        then 'not set'
-      else lower(gasourcemedium)
-    end as gasourcemedium
-  , sum(gabounces) as gabounces
-  , sum(ganewusers) as ganewusers
-  , sum(gapageviews) as gapageviews
-  , sum(gasessions) as gasessions
-  , avg(gasessionduration) as gasessionduration
-  , avg(gatimeonpage) as gatimeonpage
-  , sum(gatotalevents) as gatotalevents
-  , sum(gatransactions) as gatransactions
-  , sum(gausers) as gausers
-from ${ref("seo_dashboard_02_raw", "seo_ga_source_traffic")}
-group by
-  gaaccountid
-  ,gadate
-  ,cast(CONCAT(FORMAT_DATETIME("%Y", gadate), FORMAT_DATETIME("%m", gadate)) as numeric)
-  ,gaprofileid
-  ,gaprofilename
-  ,gawebpropertyid
-  ,gawebpropertyname
-  ,lower(gadevicecategory) 
-  ,lower(gachannelgrouping)
-  -- ,galandingpagepath
-  , case
-      when gasourcemedium like '%google.zip%'
-        then 'google.zip'
-      when gasourcemedium like '%facebook_utm_medium%'
-        then 'facebook'
-      when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
-        then 'not set'
-      else lower(gasourcemedium)
-    end
+  tmp.*
+  , c.ID_Country
+  , t.ID_Traffic_Type
+from tmp 
+left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+on c.Country = tmp.Country
+left join ${ref("seo_dashboard_04_rpt", "D_traffic")} t
+on t.Traffic_Type = tmp.gachannelgrouping

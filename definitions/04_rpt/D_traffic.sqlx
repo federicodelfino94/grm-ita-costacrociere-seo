@@ -1,0 +1,22 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_04_rpt",
+  name: "D_traffic",
+  uniqueKey: ["Traffic_Type"],
+  assertions: {
+    uniqueKey: ["Traffic_Type"], //chiave logica
+    uniqueKey: ["ID_Traffic_Type"], //pk
+  }
+}
+
+with t as (
+  select 'Direct' as Traffic_Type
+  UNION ALL
+  select 'Organic Search' as Traffic_Type
+  UNION ALL
+  select 'Referral' as Traffic_Type
+)
+select 
+  Traffic_Type
+  , ROW_NUMBER() OVER (order by Traffic_Type) as ID_Traffic_Type
+from t

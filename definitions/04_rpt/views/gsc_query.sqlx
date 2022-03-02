@@ -1,0 +1,18 @@
+config {
+  type: "view",
+  schema: "seo_dashboard_04_rpt",
+  name: "gsc_query"
+}
+
+select
+  -- day
+  year_month
+  -- , site
+  , query
+  , Brand_Generic_SuperGeneric
+  -- ,  Country
+  , ID_Country
+  , impressions
+  , clicks
+  , position
+from ${ref("seo_dashboard_04_rpt", "seo_gsc_query")}

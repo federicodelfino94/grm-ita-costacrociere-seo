@@ -12,17 +12,40 @@ config {
   }
 }
 
-select
-  day
-  , cast(CONCAT(FORMAT_DATETIME("%Y", day), FORMAT_DATETIME("%m", day)) as numeric) as year_month
-  , lower(site) as site
-  -- , lower(page) as page
-  -- , lower(trim(query)) as query
-  , sum(impressions) as impressions
-  , sum(clicks) as clicks
-  , avg(position) as position
-from ${ref("seo_dashboard_02_raw", "seo_gsc_page")}
-group by 
-  day
-  , cast(CONCAT(FORMAT_DATETIME("%Y", day), FORMAT_DATETIME("%m", day)) as numeric)
-  , lower(site)
+with tmp as (
+  select
+    day
+    , cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month
+    , lower(site) as site
+    -- , lower(page) as page
+    -- , lower(trim(query)) as query
+    , case
+        when lower(site) like '%.it%' then 'Italy'
+        when lower(site) like '%.fr%' then 'France' 
+        when lower(site) like '%.ch%' then 'Switzerland'
+        when lower(site) like '%.uk%' then 'UK'
+        when lower(site) like '%.es%' then 'Spain'
+        when lower(site) like '%.com/SE%' then 'Sweden'
+        when lower(site) like '%.at%' then 'Austria'
+        when lower(site) like '%.de%' then 'Germany'
+        when lower(site) like '%www.costacruceros.com/%' then 'Argentina'
+        when lower(site) like '%.dk%' then 'Denmark'
+        when lower(site) like '%www.costacruzeiros.com/%' then 'Brazil'
+        when lower(site) like '%costacruises.ru%' then 'Russia'
+        else 'N/A'
+      end as Country
+    , sum(impressions) as impressions
+    , sum(clicks) as clicks
+    , avg(position) as position
+  from ${ref("seo_dashboard_02_raw", "seo_gsc_page")}
+  group by 
+    day
+    , lower(site)
+    , Country
+)
+select 
+  tmp.*
+  , c.ID_Country
+from tmp 
+left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+on c.Country = tmp.Country

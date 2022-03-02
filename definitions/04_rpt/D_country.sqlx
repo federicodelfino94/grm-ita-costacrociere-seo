@@ -1,7 +1,12 @@
 config {
-  type: "view",
+  type: "table",
   schema: "seo_dashboard_04_rpt",
-  name: "D_country"
+  name: "D_country",
+  uniqueKey: ["Country"],
+  assertions: {
+    uniqueKey: ["Country"], //chiave logica
+    uniqueKey: ["ID_Country"] //chiave primaria
+  }
 }
 
 with m as (
@@ -52,9 +57,13 @@ with m as (
   select 
     'Russia' as Country,
     'Secondary' as CountryGroup
+  UNION ALL
+  select 
+    'N/A' as Country,
+    'N/A' as CountryGroup
 )
 select 
   Country
   , CountryGroup
-  , ROW_NUMBER() OVER () as ID_Country
+  , ROW_NUMBER() OVER (order by Country) as ID_Country
 from m
