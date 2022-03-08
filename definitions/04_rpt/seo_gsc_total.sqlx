@@ -27,21 +27,7 @@ with tmp as (
   select
     cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month
     , lower(site) as site
-    , case
-        when lower(site) like '%.it%' then 'Italy'
-        when lower(site) like '%.fr%' then 'France' 
-        when lower(site) like '%.ch%' then 'Switzerland'
-        when lower(site) like '%.uk%' then 'UK'
-        when lower(site) like '%.es%' then 'Spain'
-        when lower(site) like '%.com/SE%' then 'Sweden'
-        when lower(site) like '%.at%' then 'Austria'
-        when lower(site) like '%.de%' then 'Germany'
-        when lower(site) like '%www.costacruceros.com/%' then 'Argentina'
-        when lower(site) like '%.dk%' then 'Denmark'
-        when lower(site) like '%www.costacruzeiros.com/%' then 'Brazil'
-        when lower(site) like '%costacruises.ru%' then 'Russia'
-        else 'N/A'
-      end as Country
+    , ${gsc_country_attribution()} as Country
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position

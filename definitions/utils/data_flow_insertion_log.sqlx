@@ -30,6 +30,12 @@ pre_operations {
     from ${self()}
     where ID_data_flow = 3 -- data_flow_name = 'seo_gsc_total'
   )
+  ---
+  declare last_insert_ts_ga_source_traffic default (
+    select MAX(file_upload_ts) 
+    from ${self()}
+    where ID_data_flow = 4 -- data_flow_name = 'seo_ga_source_traffic'
+  )
 }
 
 select
@@ -80,6 +86,24 @@ from ${ref("seo_dashboard_01_temp", "seo_gsc_total")}
 ${ when(
     incremental(),
     `WHERE dt_created > last_insert_ts_gsc_total`
+  )
+}
+group by dt_filename, dt_created 
+
+UNION ALL
+
+select
+  4 as ID_data_flow -- required for partitioning -> one value for each data flow
+	, 'seo_ga_source_traffic' as data_flow_name  -- partitionBy dt_created, clusterBy day
+  , dt_filename
+	, dt_created as file_upload_ts
+	, max(gadate) as max_business_date
+	, min(gadate) as min_business_date
+	, FALSE as processed_flag
+from ${ref("seo_dashboard_01_temp", "seo_ga_source_traffic")}
+${ when(
+    incremental(),
+    `WHERE dt_created > last_insert_ts_ga_source_traffic`
   )
 }
 group by dt_filename, dt_created 

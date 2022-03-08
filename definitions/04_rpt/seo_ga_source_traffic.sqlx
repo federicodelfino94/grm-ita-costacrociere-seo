@@ -2,84 +2,79 @@ config {
   type: "incremental",
   schema: "seo_dashboard_04_rpt",
   name: "seo_ga_source_traffic",
-  uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping"],
+  uniqueKey: ["gadate", "ID_Country", "ID_Traffic_Type", "flag_Magazine"],
   assertions: {
-    uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping"]
+    uniqueKey: ["gadate", "ID_Country", "ID_Traffic_Type", "flag_Magazine"]
   },
   bigquery: {
     partitionBy: "gadate",
-    clusterBy: ["gaprofileid", "gawebpropertyid", "gadevicecategory", "gachannelgrouping"]
+    clusterBy: ["Country", "gachannelgrouping", "flag_Magazine"]
   }
 }
 
+
 with tmp as (
   select 
-    gaaccountid
-    ,gadate
+    -- gaaccountid
+    gadate
     ,cast(CONCAT(FORMAT_DATETIME("%Y-%m", gadate),'-01') as date) as year_month
-    ,gaprofileid
-    ,gaprofilename
-    ,gawebpropertyid
+    -- ,gaprofileid
+    -- ,gaprofilename
+    -- ,gawebpropertyid
     ,gawebpropertyname
-    ,INITCAP(gadevicecategory) as gadevicecategory 
+    -- ,INITCAP(gadevicecategory) as gadevicecategory 
     ,INITCAP(gachannelgrouping) as gachannelgrouping
-    -- ,galandingpagepath
+    -- , case
+    --     when gasourcemedium like '%google.zip%'
+    --       then 'google.zip'
+    --     when gasourcemedium like '%facebook_utm_medium%'
+    --       then 'facebook'
+    --     when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
+    --       then 'not set'
+    --     else lower(gasourcemedium)
+    --   end as gasourcemedium
     , case
-        when gasourcemedium like '%google.zip%'
-          then 'google.zip'
-        when gasourcemedium like '%facebook_utm_medium%'
-          then 'facebook'
-        when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
-          then 'not set'
-        else lower(gasourcemedium)
-      end as gasourcemedium
-    , case
-        when gawebpropertyname like '%.it%' then 'Italy'
-        when gawebpropertyname like '%.fr%' then 'France' 
-        when gawebpropertyname like '%.ch%' then 'Switzerland'
-        when gawebpropertyname like '%.uk%' then 'UK'
-        when gawebpropertyname like '%.es%' then 'Spain'
-        when gawebpropertyname like '%.com/SE%' then 'Sweden'
-        when gawebpropertyname like '%.at%' then 'Austria'
+        when gawebpropertyname = 'costacrocere.it' then 'Italy'
+        when gawebpropertyname = 'www.costacroisieres.fr' then 'France' 
+        when gawebpropertyname = 'costakreuzfahrten.ch' then 'Switzerland'
+        when gawebpropertyname = 'www.costacruises.co.uk' then 'UK'
+        when gawebpropertyname = 'www.costacruceros.es' then 'Spain'
+        -- when gawebpropertyname like '%.com/SE%' then 'Sweden'
+        when gawebpropertyname = 'www.costakreuzfahrten.at' then 'Austria'
         when gawebpropertyname = 'Costa Kreuzfahrten' then 'Germany'
         when gawebpropertyname = 'www.costacruceros.com' then 'Argentina'
-        when gawebpropertyname = 'www.costacruise.com/' then 'Denmark'
+        -- when gawebpropertyname = 'www.costacruise.com' then 'Denmark'
         when gawebpropertyname = 'www.costacruzeiros.com' then 'Brazil'
-        when gawebpropertyname like '%costacruises.ru%' then 'Russia'
+        when gawebpropertyname = 'www.costacruises.ru' then 'Russia'
         else 'N/A'
       end as Country
-    , sum(gabounces) as gabounces
-    , sum(ganewusers) as ganewusers
+    -- ,galandingpagepath
+    , starts_with(galandingpagepath, '/costa-club/magazine/') as flag_Magazine
+    -- , sum(gabounces) as gabounces
+    -- , sum(ganewusers) as ganewusers
     , sum(gapageviews) as gapageviews
     , sum(gasessions) as gasessions
-    , avg(gasessionduration) as gasessionduration
-    , avg(gatimeonpage) as gatimeonpage
-    , sum(gatotalevents) as gatotalevents
+    -- , avg(gasessionduration) as gasessionduration
+    -- , avg(gatimeonpage) as gatimeonpage
+    -- , sum(gatotalevents) as gatotalevents
     , sum(gatransactions) as gatransactions
     , sum(gausers) as gausers
   from ${ref("seo_dashboard_02_raw", "seo_ga_source_traffic")}
   where INITCAP(gachannelgrouping) in (
                   select INITCAP(Traffic_Type) 
                   FROM ${ref("seo_dashboard_04_rpt", "D_traffic")}
-                ) --interessa solo il traffico tracciato in anagrafica
+      ) --interessa solo il traffico tracciato in anagrafica
   group by
-    gaaccountid
-    ,gadate
-    ,gaprofileid
-    ,gaprofilename
-    ,gawebpropertyid
+    -- gaaccountid
+    gadate
+    -- ,gaprofileid
+    -- ,gaprofilename
+    -- ,gawebpropertyid
     ,gawebpropertyname
-    ,INITCAP(gadevicecategory) 
+    -- ,INITCAP(gadevicecategory) 
     ,INITCAP(gachannelgrouping)
-    , case
-        when gasourcemedium like '%google.zip%'
-          then 'google.zip'
-        when gasourcemedium like '%facebook_utm_medium%'
-          then 'facebook'
-        when gasourcemedium like '%dfa&utm_medium=cpm&utm_campaign%'
-          then 'not set'
-        else lower(gasourcemedium)
-      end
+    -- ,gasourcemedium
+    , flag_Magazine
 )
 select 
   tmp.*

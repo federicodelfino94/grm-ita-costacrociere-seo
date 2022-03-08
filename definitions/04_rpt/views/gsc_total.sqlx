@@ -12,4 +12,5 @@ select
   , clicks
   , position
 from ${ref("seo_dashboard_04_rpt", "seo_gsc_total")}
-
+where 1=1
+and Country not in ('Sweden', 'Denmark')

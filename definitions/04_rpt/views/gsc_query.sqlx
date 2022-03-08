@@ -4,6 +4,7 @@ config {
   name: "gsc_query"
 }
 
+
 select
   year_month
   , query
@@ -14,3 +15,5 @@ select
   , clicks
   , position
 from ${ref("seo_dashboard_04_rpt", "seo_gsc_query")}
+where 1=1
+and Country not in ('Sweden', 'Denmark')

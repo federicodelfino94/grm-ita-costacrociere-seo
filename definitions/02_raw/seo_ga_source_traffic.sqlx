@@ -13,9 +13,22 @@ config {
   }
 }
 
+
 pre_operations {
-  declare last_insert_ts default (
-    select MAX(dt_created) from ${self()}
+  DECLARE ts DATETIME
+  ---
+  CREATE TEMP TABLE tmp_t (
+    dt_filename STRING,
+    file_upload_ts DATETIME
+  ) AS 
+    select dt_filename , file_upload_ts
+    from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
+    where ID_data_flow = 4 --data_flow_name = 'seo_ga_source_traffic'
+    and processed_flag = FALSE
+  ---
+  set ts = (
+    select ifnull(MIN(file_upload_ts), DATETIME_ADD(CURRENT_DATETIME(), INTERVAL 1 YEAR)) 
+    from tmp_t
   )
 }
 
@@ -37,9 +50,11 @@ with up_to_date as (
   from ${ref("seo_dashboard_01_temp", "seo_ga_source_traffic")}
   ${ when(
       incremental(),
-      `WHERE dt_created > last_insert_ts`
-  )
-  }
+      `WHERE dt_created >= date(ts) 
+       AND dt_filename in (select dt_filename from tmp_t)
+      `
+    )
+  } 
 )
 select 
   * except (dt_updated, rank)
@@ -47,4 +62,10 @@ from up_to_date
 where rank = 1
 
 
--- ${get_last_values_by_pk("seo_dashboard_01_temp", "seo_ga_source_traffic", "gaaccountid, gadate, gaprofileid, gaprofilename, gawebpropertyid, gawebpropertyname, gasourcemedium, gadevicecategory, gachannelgrouping, galandingpagepath")}
+post_operations {
+  UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
+  SET processed_flag = TRUE
+  where file_upload_ts >= ts
+  and ID_data_flow = 4 --data_flow_name = 'seo_ga_source_traffic'
+  AND dt_filename in (select dt_filename from tmp_t)
+}

@@ -14,11 +14,20 @@ config {
 }
 
 pre_operations {
-  declare ts default (
-    select MIN(file_upload_ts) 
+  DECLARE ts DATETIME
+  ---
+  CREATE TEMP TABLE tmp_t (
+    dt_filename STRING,
+    file_upload_ts DATETIME
+  ) AS 
+    select dt_filename , file_upload_ts
     from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
     where ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
     and processed_flag = FALSE
+  ---
+  set ts = (
+    select ifnull(MIN(file_upload_ts), DATETIME_ADD(CURRENT_DATETIME(), INTERVAL 1 YEAR)) 
+    from tmp_t
   )
 }
 
@@ -28,44 +37,17 @@ with tmp as (
     , lower(site) as site
     , lower(page) as page
     , lower(trim(SUBSTRING(query, 0, 200))) as query
-    , case 
-        when lower(query) like '%costa%' then 'Brand' 
-        when lower(query) like '%costacrociere%' then 'Brand' 
-        when lower(query) like '%costa crociere%' then 'Brand' 
-        when lower(query) like '%costakreuzfahrten%' then 'Brand' 
-        when lower(query) like '%costa kreuzfahrten%' then 'Brand' 
-        when lower(query) like '%costacroisieres%' then 'Brand' 
-        when lower(query) like '%costa croisieres%' then 'Brand' 
-        when lower(query) like '%costacruises%' then 'Brand' 
-        when lower(query) like '%costa cruises%' then 'Brand' 
-        when lower(query) like '%costacruceros%' then 'Brand' 
-        when lower(query) like '%costa cruceros%' then 'Brand' 
-        when lower(query) like '%costacruizeiros%' then 'Brand' 
-        when lower(query) like '%costa cruizeiros%' then 'Brand' 
-        else 'Generic'
-      end as Brand_Generic_SuperGeneric
-    , case
-        when lower(site) like '%.it%' then 'Italy'
-        when lower(site) like '%.fr%' then 'France' 
-        when lower(site) like '%.ch%' then 'Switzerland'
-        when lower(site) like '%.uk%' then 'UK'
-        when lower(site) like '%.es%' then 'Spain'
-        when lower(site) like '%.com/SE%' then 'Sweden'
-        when lower(site) like '%.at%' then 'Austria'
-        when lower(site) like '%.de%' then 'Germany'
-        when lower(site) like '%www.costacruceros.com/%' then 'Argentina'
-        when lower(site) like '%.dk%' then 'Denmark'
-        when lower(site) like '%www.costacruzeiros.com/%' then 'Brazil'
-        when lower(site) like '%costacruises.ru%' then 'Russia'
-        else 'N/A'
-      end as Country
+    , ${gsc_brand_generic_supergeneric_attribution()} as Brand_Generic_SuperGeneric
+    , ${gsc_country_attribution()} as Country
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position
   from ${ref("seo_dashboard_01_temp", "seo_gsc_page_query")}
   ${ when(
       incremental(),
-      `WHERE dt_created >= ts`
+      `WHERE dt_created >= ts 
+       AND dt_filename in (select dt_filename from tmp_t)
+      `
     )
   }
   group by 
@@ -89,4 +71,5 @@ post_operations {
   SET processed_flag = TRUE
   where file_upload_ts >= ts
   and ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
+  AND dt_filename in (select dt_filename from tmp_t)
 }
