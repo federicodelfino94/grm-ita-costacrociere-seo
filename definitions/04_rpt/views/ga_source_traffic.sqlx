@@ -28,4 +28,4 @@ select
   , gatransactions
   , gausers
 from ${ref("seo_dashboard_04_rpt", "seo_ga_source_traffic")}
-
+where Country not in ('Sweden', 'Denmark')

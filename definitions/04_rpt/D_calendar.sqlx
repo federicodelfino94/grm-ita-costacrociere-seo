@@ -10,4 +10,4 @@ SELECT
   , extract(month from d) as Month_Number
   , FORMAT_DATE('%B', d) as Month 
   , CONCAT('Q', cast(extract(quarter from d) as string)) as Quarter
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-12-01', CURRENT_DATE(), INTERVAL 1 month)) d
+FROM UNNEST(GENERATE_DATE_ARRAY('2018-12-01', CURRENT_DATE(), INTERVAL 1 month)) d
