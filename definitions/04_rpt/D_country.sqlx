@@ -15,10 +15,6 @@ with m as (
     'Main' as CountryGroup
   UNION ALL
   select 
-    'Denmark' as Country,
-    'Secondary' as CountryGroup
-  UNION ALL
-  select 
     'Germany' as Country,
     'Main' as CountryGroup
   UNION ALL
@@ -49,10 +45,14 @@ with m as (
   select 
     'Austria' as Country,
     'Main' as CountryGroup
-  UNION ALL
-  select 
-    'Sweden' as Country,
-    'Secondary' as CountryGroup
+  -- UNION ALL
+  -- select 
+  --   'Sweden' as Country,
+  --   'Secondary' as CountryGroup
+  -- UNION ALL
+  -- select 
+  --   'Denmark' as Country,
+  --   'Secondary' as CountryGroup
   UNION ALL
   select 
     'Russia' as Country,

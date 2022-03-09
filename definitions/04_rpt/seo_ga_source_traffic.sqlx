@@ -34,7 +34,7 @@ with tmp as (
     --     else lower(gasourcemedium)
     --   end as gasourcemedium
     , case
-        when gawebpropertyname = 'costacrocere.it' then 'Italy'
+        when gawebpropertyname = 'www.costacrociere.it' then 'Italy'
         when gawebpropertyname = 'www.costacroisieres.fr' then 'France' 
         when gawebpropertyname = 'costakreuzfahrten.ch' then 'Switzerland'
         when gawebpropertyname = 'www.costacruises.co.uk' then 'UK'

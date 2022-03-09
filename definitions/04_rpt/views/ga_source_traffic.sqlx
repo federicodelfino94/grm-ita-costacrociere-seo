@@ -18,6 +18,7 @@ select
   -- ,gasourcemedium
   -- ,Country
   , ID_Country
+  , flag_Magazine
   -- , gabounces
   -- , ganewusers
   , gapageviews
