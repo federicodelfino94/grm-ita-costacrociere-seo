@@ -49,7 +49,7 @@ with tmp as (
         else 'N/A'
       end as Country
     -- ,galandingpagepath
-    , starts_with(galandingpagepath, '/costa-club/magazine/') as flag_Magazine
+    , not(starts_with(galandingpagepath, '/costa-club/magazine/')) as flag_Magazine
     -- , sum(gabounces) as gabounces
     -- , sum(ganewusers) as ganewusers
     , sum(gapageviews) as gapageviews
