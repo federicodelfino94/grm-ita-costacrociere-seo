@@ -1,0 +1,21 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_semrush_ranking",
+}
+
+select 
+  CASE 
+    WHEN upper(trim(Market)) = 'IT' then 'Italy'
+    WHEN upper(trim(Market)) = 'FR' then 'France'
+    WHEN upper(trim(Market)) = 'ES' then 'Spain'
+    WHEN upper(trim(Market)) = 'DE' then 'Germany'
+    WHEN upper(trim(Market)) = 'CH' then 'Switzerland'
+    WHEN upper(trim(Market)) = 'AT' then 'Austria'
+    WHEN upper(trim(Market)) = 'BR' then 'Brazil'
+    WHEN upper(trim(Market)) = 'AR' then 'Argentina'
+    WHEN upper(trim(Market)) = 'RU' then 'Russia'
+    WHEN upper(trim(Market)) = 'UK' then 'UK'
+    ELSE 'N/A'
+  END as Country
+from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking")}
