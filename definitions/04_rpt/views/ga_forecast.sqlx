@@ -1,0 +1,9 @@
+config {
+  type: "view",
+  schema: "seo_dashboard_04_rpt",
+  name: "ga_forecast"
+}
+
+select 
+  * except(Country)
+from ${ref("seo_dashboard_04_rpt", "seo_forecasting")}

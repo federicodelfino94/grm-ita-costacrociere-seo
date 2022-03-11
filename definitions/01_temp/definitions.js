@@ -23,3 +23,13 @@ declare({
     schema: "seo_dashboard_01_temp",
     description: ""
 })
+declare({
+    name: "seo_semrush_ranking",
+    schema: "seo_dashboard_01_temp",
+    description: ""
+})
+declare({
+    name: "seo_forecasting",
+    schema: "seo_dashboard_01_temp",
+    description: ""
+})

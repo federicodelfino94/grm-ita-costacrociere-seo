@@ -1,0 +1,6 @@
+config {
+  type: "assertion"
+}
+
+
+${pk_uniqueness("seo_dashboard_01_temp", "seo_forecasting", "Market, Month")}

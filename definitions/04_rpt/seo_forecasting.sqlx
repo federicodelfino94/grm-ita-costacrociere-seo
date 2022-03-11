@@ -1,0 +1,37 @@
+config {
+  type: "incremental",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_forecasting",
+  dependencies: ["temp seo_forecasting"],
+  uniqueKey: ["Country", "year_month"],
+  assertions: {
+    uniqueKey: ["Country", "year_month"]
+  }
+}
+
+with tmp as (
+	select 
+		CASE 
+			WHEN upper(trim(Market)) = 'IT' then 'Italy'
+			WHEN upper(trim(Market)) = 'FR' then 'France'
+			WHEN upper(trim(Market)) = 'ES' then 'Spain'
+			WHEN upper(trim(Market)) = 'DE' then 'Germany'
+			WHEN upper(trim(Market)) = 'CH' then 'Switzerland'
+			WHEN upper(trim(Market)) = 'AT' then 'Austria'
+			WHEN upper(trim(Market)) = 'BR' then 'Brazil'
+			WHEN upper(trim(Market)) = 'AR' then 'Argentina'
+			WHEN upper(trim(Market)) = 'RU' then 'Russia'
+			WHEN upper(trim(Market)) = 'UK' then 'UK'
+			ELSE 'N/A'
+		END as Country
+	--	, CONCAT( SPLIT(Month, '-')[OFFSET(0)], '-20', SPLIT(Month, '-')[OFFSET(1)])
+		, PARSE_DATE('%b-%Y', CONCAT( SPLIT(Month, '-')[OFFSET(0)], '-20', SPLIT(Month, '-')[OFFSET(1)])) as year_month
+		, SAFE_CAST(Sessions as int) as Sessions
+	from ${ref("seo_dashboard_01_temp", "seo_forecasting")}
+) 
+select 
+	tmp.*
+	, c.ID_Country
+from tmp
+left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+on c.Country = tmp.Country
