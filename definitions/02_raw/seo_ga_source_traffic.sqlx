@@ -3,13 +3,12 @@ config {
   name: "seo_ga_source_traffic",
   schema: "seo_dashboard_02_raw",
   dependencies: ["temp seo_ga_source_traffic"],
-  uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping", "galandingpagepath"],
+  uniqueKey: ["gaaccountid", "gadate", "gaprofileid", "gaprofilename", "gawebpropertyid", "gawebpropertyname", "gasourcemedium", "gadevicecategory", "gachannelgrouping", "galandingpagepath"],
   assertions: {
-    uniqueKey: ["gaaccountid","gadate","gaprofileid","gaprofilename","gawebpropertyid","gawebpropertyname","gasourcemedium","gadevicecategory","gachannelgrouping", "galandingpagepath"]
+    uniqueKey: ["gaaccountid", "gadate", "gaprofileid", "gaprofilename", "gawebpropertyid", "gawebpropertyname", "gasourcemedium", "gadevicecategory", "gachannelgrouping", "galandingpagepath"]
   },
   bigquery: {
-    partitionBy: "gadate",
-    clusterBy: ["gaprofileid", "gawebpropertyid", "gadevicecategory", "gachannelgrouping"]
+    partitionBy: "gadate"
   }
 }
 
@@ -32,34 +31,41 @@ pre_operations {
   )
 }
 
+
 with up_to_date as (
   select
     * 
     , row_number() over (
-        partition by gaaccountid
-                     , gadate
-                     , gaprofileid
-                     , gaprofilename
-                     , gawebpropertyid
-                     , gawebpropertyname
-                     , gasourcemedium
-                     , gadevicecategory
-                     , gachannelgrouping
-        order by dt_updated desc
-    ) rank
+        partition by 
+          gadate
+          , gadevicecategory
+          , gasourcemedium
+          , gachannelgrouping
+          , gawebpropertyid
+          , gawebpropertyname
+          , galandingpagepath
+          , gaaccountid
+          , gaprofileid
+          , gaprofilename
+        order by dt_created desc
+    ) rn
   from ${ref("seo_dashboard_01_temp", "seo_ga_source_traffic")}
+  where INITCAP(gachannelgrouping) in (
+		          select INITCAP(Traffic_Type) 
+		          FROM `grm-ita-costa-crociere.seo_dashboard_04_rpt.D_traffic`
+  )
   ${ when(
       incremental(),
-      `WHERE dt_created >= date(ts) 
+      `AND dt_created >= date(ts) 
        AND dt_filename in (select dt_filename from tmp_t)
       `
     )
   } 
 )
 select 
-  * except (dt_updated, rank)
+  * 
 from up_to_date
-where rank = 1
+where rn = 1
 
 
 post_operations {

@@ -1,7 +1,10 @@
 config {
   type: "view",
   schema: "seo_dashboard_04_rpt",
-  name: "ga_source_traffic"
+  name: "ga_source_traffic",
+  assertions: {
+    nonNull: ["ID_Country", "year_month"],
+  }
 }
 
 select

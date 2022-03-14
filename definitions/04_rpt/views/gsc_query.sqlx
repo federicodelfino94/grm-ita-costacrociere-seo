@@ -1,7 +1,10 @@
 config {
   type: "view",
   schema: "seo_dashboard_04_rpt",
-  name: "gsc_query"
+  name: "gsc_query",
+  assertions: {
+    nonNull: ["ID_Country", "year_month"],
+  }
 }
 
 
