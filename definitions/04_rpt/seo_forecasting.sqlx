@@ -48,6 +48,7 @@ select
 	, PARSE_DATE('%Y-%m', CONCAT(tmp.parsed_year, '-', tmp.parsed_month)) as year_month
 	, tmp.Sessions
 	, c.ID_Country
+	, upload_month
 from tmp
 left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Country
