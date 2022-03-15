@@ -10,6 +10,9 @@ SELECT
   , extract(month from d) as Month_Number
   , FORMAT_DATE('%B', d) as Month 
   , CONCAT('Q', cast(extract(quarter from d) as string)) as Quarter
+  , extract(year from date_add(d, INTERVAL 1 month)) as Fiscal_Year
+  , CONCAT('Q', cast(extract(quarter from date_add(d, INTERVAL 1 month)) as string)) as Fiscal_Quarter  
+  , extract(month from date_add(d, INTERVAL 1 month)) as Fiscal_Month_Number
 FROM UNNEST(
   GENERATE_DATE_ARRAY(
     '2018-12-01'

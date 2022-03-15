@@ -1,0 +1,25 @@
+config {
+  type: "view",
+  schema: "seo_dashboard_04_rpt",
+  name: "semrush_ranking",
+  assertions: {
+    nonNull: ["ID_Country"]
+  }
+}
+
+select 
+  Main_Cluster
+  , Keywords
+  , Keyword_Position
+  , Position_Label
+  , CASE
+      WHEN Position_Label = 'TOP 3' then 1
+      WHEN Position_Label = '4-10' then 2
+      WHEN Position_Label = '2° Page' then 3
+      WHEN Position_Label = 'Over 2° page' then 4
+    END as Position_Label_Order
+  , Visibility_Index
+  , Avg_Search_Volume_Monthly
+  , date_str as Reference_Month
+  , ID_Country
+from ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking")}
