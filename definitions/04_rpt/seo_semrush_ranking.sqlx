@@ -12,7 +12,7 @@ with tmp as (
         WHEN upper(trim(Market)) = 'FR' then 'France'
         WHEN upper(trim(Market)) = 'ES' then 'Spain'
         WHEN upper(trim(Market)) = 'DE' then 'Germany'
-        WHEN upper(trim(Market)) = 'CH' then 'Switzerland'
+        WHEN upper(trim(Market)) IN ('CH', 'CH-FR', 'CH-DE') then 'Switzerland'
         WHEN upper(trim(Market)) = 'AT' then 'Austria'
         WHEN upper(trim(Market)) = 'BR' then 'Brazil'
         WHEN upper(trim(Market)) = 'AR' then 'Argentina'
