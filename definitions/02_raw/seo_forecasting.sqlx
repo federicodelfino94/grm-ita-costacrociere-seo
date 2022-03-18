@@ -44,7 +44,7 @@ with tmp as (
 	, CONCAT('20', SPLIT(Month, '-')[OFFSET(1)]) as parsed_year
 	, SAFE_CAST(Sessions as int) as Sessions
     , REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', '') as date_str
-	, PARSE_DATE('%Y-%b', REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', '')) as upload_month
+	, PARSE_DATE('%Y-%m', REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', '')) as upload_month
   from ${ref("seo_dashboard_01_temp", "seo_forecasting")}
 ), up_to_date as (
   select 

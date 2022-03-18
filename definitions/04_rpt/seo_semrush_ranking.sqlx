@@ -26,7 +26,7 @@ with tmp as (
     , Position_Label
     , SAFE_CAST(REPLACE(Visibility_Index, ',', '') as INT) as Visibility_Index
     , SAFE_CAST(Avg_Search_Volume_Monthly AS INT) as Avg_Search_Volume_Monthly
-    , REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', '') as date_str
+    , FORMAT_DATE("%B %Y", PARSE_DATE('%Y-%m', REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', ''))) as date_str
 	from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking")}
 )
 select 
