@@ -36,8 +36,12 @@ with tmp as (
       end as Country
     -- ,galandingpagepath
     , case 
-        when starts_with(galandingpagepath, '/costa-club/magazine/') = true
-          then 'Magazine'
+        when gawebpropertyname = 'costakreuzfahrten.ch' -- Svizzera caso speciale: page path inizia con /de , /fr
+          and starts_with(substring(galandingpagepath, 4), '/costa-club/magazine/') = true
+                then 'Magazine'
+        when gawebpropertyname <> 'costakreuzfahrten.ch' -- tutti gli altri casi
+          and starts_with(galandingpagepath, '/costa-club/magazine/') = true
+            then 'Magazine'
         else 'Ecommerce'
       end as flag_Magazine
     , sum(gapageviews) as gapageviews
