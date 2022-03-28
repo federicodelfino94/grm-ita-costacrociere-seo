@@ -35,7 +35,11 @@ with tmp as (
         else 'N/A'
       end as Country
     -- ,galandingpagepath
-    , not(starts_with(galandingpagepath, '/costa-club/magazine/')) as flag_Magazine
+    , case 
+        when starts_with(galandingpagepath, '/costa-club/magazine/') = true
+          then 'Magazine'
+        else 'Ecommerce'
+      end as flag_Magazine
     , sum(gapageviews) as gapageviews
     , sum(gasessions) as gasessions
     , sum(gatransactions) as gatransactions

@@ -24,7 +24,7 @@ with tmp as (
     , Keywords
     , ifnull(SAFE_CAST(Keyword_Position as INT), 101) as Keyword_Position
     , Position_Label
-    , SAFE_CAST(REPLACE(Visibility_Index, ',', '') as INT) as Visibility_Index
+    , SAFE_CAST(REPLACE(Visibility_Index, ',', '.') as NUMERIC) as Visibility_Index
     , SAFE_CAST(Avg_Search_Volume_Monthly AS INT) as Avg_Search_Volume_Monthly
     , FORMAT_DATE("%B %Y", PARSE_DATE('%Y-%m', REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', ''))) as date_str
     , PARSE_DATE('%Y-%m', REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', '')) as date_str_order
