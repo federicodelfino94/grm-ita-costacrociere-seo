@@ -2,6 +2,7 @@ config {
   type: "table",
   schema: "seo_dashboard_04_rpt",
   name: "seo_semrush_ranking",
+  tags: ["Semrush"]
 }
 
 with tmp as (

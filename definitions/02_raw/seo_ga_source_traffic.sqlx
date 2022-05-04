@@ -9,7 +9,8 @@ config {
   },
   bigquery: {
     partitionBy: "gadate"
-  }
+  },
+  tags:["GA"]
 }
 
 

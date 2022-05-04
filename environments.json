@@ -5,11 +5,33 @@
       "configOverride": {},
       "schedules": [
         {
-          "name": "Monthly, 2n day, 1am",
-          "cron": "0 1 2 * *"
+          "name": "Monthly, 4th day, 1am",
+          "cron": "0 1 4 * *",
+          "options": {
+            "includeDependencies": true
+          }
+        },
+        {
+          "name": "Daily 1am UTC",
+          "cron": "0 1 * * *",
+          "options": {
+            "includeDependencies": true,
+            "includeDependents": true
+          }
         }
       ],
       "gitRef": "master"
+    }
+  ],
+  "notificationChannels": [
+    {
+      "name": "seo_dashboard",
+      "email": {
+        "to": [
+          "alessandro.folloni@groupm.com",
+          "gianluca.calzati@groupm.com"
+        ]
+      }
     }
   ]
 }

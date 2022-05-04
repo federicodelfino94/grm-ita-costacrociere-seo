@@ -9,7 +9,8 @@ config {
   bigquery: {
     partitionBy: "gadate",
     clusterBy: ["Country", "gachannelgrouping", "flag_Magazine"]
-  }
+  },
+  tags:["GA"]
 }
 
 

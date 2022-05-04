@@ -10,7 +10,8 @@ config {
   bigquery: {
     partitionBy: "DATE_TRUNC(year_month, MONTH)",
     clusterBy: ["site"]
-  }
+  },
+  tags:["GSC"]
 }
 
 pre_operations {
