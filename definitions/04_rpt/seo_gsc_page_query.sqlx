@@ -1,8 +1,9 @@
 config {
   type: "incremental",
+  //type: "table",
   name: "seo_gsc_page_query",
   schema: "seo_dashboard_04_rpt",
-  dependencies: ["data_flow_insertion_log"],
+  //dependencies: ["data_flow_insertion_log"],
   uniqueKey: ["year_month", "site", "page", "query"],
   assertions: {
     uniqueKey: ["year_month", "site", "page", "query"]
@@ -14,23 +15,23 @@ config {
   tags:["GSC"]
 }
 
-pre_operations {
-  DECLARE ts DATETIME
-  ---
-  CREATE TEMP TABLE tmp_t (
-    dt_filename STRING,
-    file_upload_ts DATETIME
-  ) AS 
-    select dt_filename , file_upload_ts
-    from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
-    where ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
-    and processed_flag = FALSE
-  ---
-  set ts = (
-    select ifnull(MIN(file_upload_ts), DATETIME_ADD(CURRENT_DATETIME(), INTERVAL 1 YEAR)) 
-    from tmp_t
-  )
-}
+-- pre_operations {
+--   DECLARE ts DATETIME
+--   ---
+--   CREATE TEMP TABLE tmp_t (
+--     dt_filename STRING,
+--     file_upload_ts DATETIME
+--   ) AS 
+--     select dt_filename , file_upload_ts
+--     from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
+--     where ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
+--     and processed_flag = FALSE
+--   ---
+--   set ts = (
+--     select ifnull(MIN(file_upload_ts), DATETIME_ADD(CURRENT_DATETIME(), INTERVAL 1 YEAR)) 
+--     from tmp_t
+--   )
+-- }
 
 with tmp as (
   select
@@ -44,13 +45,13 @@ with tmp as (
     , sum(clicks) as clicks
     , avg(position) as position
   from ${ref("seo_dashboard_01_temp", "seo_gsc_page_query")}
-  ${ when(
-      incremental(),
-      `WHERE dt_created >= ts 
-       AND dt_filename in (select dt_filename from tmp_t)
-      `
-    )
-  }
+  -- ${ when(
+  --     incremental(),
+  --     `WHERE dt_created >= ts 
+  --      AND dt_filename in (select dt_filename from tmp_t)
+  --     `
+  --   )
+  -- }
   group by 
     cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) 
     , lower(site)
@@ -67,10 +68,10 @@ left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Country
 
 
-post_operations {
-  UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
-  SET processed_flag = TRUE
-  where file_upload_ts >= ts
-  and ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
-  AND dt_filename in (select dt_filename from tmp_t)
-}
+-- post_operations {
+--   UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
+--   SET processed_flag = TRUE
+--   where file_upload_ts >= ts
+--   and ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
+--   AND dt_filename in (select dt_filename from tmp_t)
+-- }

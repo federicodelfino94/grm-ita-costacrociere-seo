@@ -2,7 +2,7 @@ config {
   type: "incremental",
   name: "seo_ga_source_traffic",
   schema: "seo_dashboard_02_raw",
-  dependencies: ["temp seo_ga_source_traffic"],
+  //dependencies: ["temp seo_ga_source_traffic"],
   uniqueKey: ["gaaccountid", "gadate", "gaprofileid", "gaprofilename", "gawebpropertyid", "gawebpropertyname", "gasourcemedium", "gadevicecategory", "gachannelgrouping", "galandingpagepath"],
   assertions: {
     uniqueKey: ["gaaccountid", "gadate", "gaprofileid", "gaprofilename", "gawebpropertyid", "gawebpropertyname", "gasourcemedium", "gadevicecategory", "gachannelgrouping", "galandingpagepath"]
@@ -14,23 +14,23 @@ config {
 }
 
 
-pre_operations {
-  DECLARE ts DATETIME
-  ---
-  CREATE TEMP TABLE tmp_t (
-    dt_filename STRING,
-    file_upload_ts DATETIME
-  ) AS 
-    select dt_filename , file_upload_ts
-    from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
-    where ID_data_flow = 4 --data_flow_name = 'seo_ga_source_traffic'
-    and processed_flag = FALSE
-  ---
-  set ts = (
-    select ifnull(MIN(file_upload_ts), DATETIME_ADD(CURRENT_DATETIME(), INTERVAL 1 YEAR)) 
-    from tmp_t
-  )
-}
+-- pre_operations {
+--   DECLARE ts DATETIME
+--   ---
+--   CREATE TEMP TABLE tmp_t (
+--     dt_filename STRING,
+--     file_upload_ts DATETIME
+--   ) AS 
+--     select dt_filename , file_upload_ts
+--     from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
+--     where ID_data_flow = 4 --data_flow_name = 'seo_ga_source_traffic'
+--     and processed_flag = FALSE
+--   ---
+--   set ts = (
+--     select ifnull(MIN(file_upload_ts), DATETIME_ADD(CURRENT_DATETIME(), INTERVAL 1 YEAR)) 
+--     from tmp_t
+--   )
+-- }
 
 
 with up_to_date as (
@@ -55,24 +55,24 @@ with up_to_date as (
 		          select INITCAP(Traffic_Type) 
 		          FROM `grm-ita-costa-crociere.seo_dashboard_04_rpt.D_traffic`
   )
-  ${ when(
-      incremental(),
-      `AND dt_created >= date(ts) 
-       AND dt_filename in (select dt_filename from tmp_t)
-      `
-    )
-  } 
+  -- ${ when(
+  --     incremental(),
+  --     `AND dt_created >= date(ts) 
+  --      AND dt_filename in (select dt_filename from tmp_t)
+  --     `
+  --   )
+  -- } 
+  QUALIFY rn = 1
 )
 select 
   * 
 from up_to_date
-where rn = 1
 
 
-post_operations {
-  UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
-  SET processed_flag = TRUE
-  where file_upload_ts >= ts
-  and ID_data_flow = 4 --data_flow_name = 'seo_ga_source_traffic'
-  AND dt_filename in (select dt_filename from tmp_t)
-}
+-- post_operations {
+--   UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
+--   SET processed_flag = TRUE
+--   where file_upload_ts >= ts
+--   and ID_data_flow = 4 --data_flow_name = 'seo_ga_source_traffic'
+--   AND dt_filename in (select dt_filename from tmp_t)
+-- }
