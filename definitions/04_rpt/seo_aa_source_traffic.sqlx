@@ -1,5 +1,5 @@
 config {
-  type: "table",
+  type: "incremental",
   schema: "seo_dashboard_04_rpt",
   name: "seo_aa_source_traffic",
   uniqueKey: ["company_id", "report_suite_id", "segment_name", "day", "item_id", "entry_page_url"],
