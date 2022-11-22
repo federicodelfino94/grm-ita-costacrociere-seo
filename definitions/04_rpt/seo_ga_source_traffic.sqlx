@@ -13,7 +13,6 @@ config {
   tags:["GA"]
 }
 
-
 with tmp as (
   select 
     gadate
@@ -35,7 +34,7 @@ with tmp as (
         when gawebpropertyname = 'www.costacruises.ru' then 'Russia'
         else 'N/A'
       end as Country
-    -- ,galandingpagepath
+    --,galandingpagepath
     , case 
         when gawebpropertyname = 'costakreuzfahrten.ch' -- Svizzera caso speciale: page path inizia con /de , /fr
           and starts_with(substring(galandingpagepath, 4), '/costa-club/magazine/') = true

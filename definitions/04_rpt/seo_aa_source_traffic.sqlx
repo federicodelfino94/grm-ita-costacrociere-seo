@@ -1,0 +1,61 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_aa_source_traffic",
+  uniqueKey: ["company_id", "report_suite_id", "segment_name", "day", "item_id", "entry_page_url"],
+  assertions: {
+    uniqueKey:["company_id", "report_suite_id", "segment_name", "day", "item_id", "entry_page_url"]
+  },
+  bigquery: {
+    partitionBy: "day",
+    clusterBy: ["country", "channel", "flag_magazine"]
+  },
+  tags:["ADOBE"]
+}
+
+with tmp as (
+  select
+        day
+      , cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month
+      , entry_page_url
+      , ${gsc_adobe_segment_channel()} as channel
+      , ${gsc_adobe_segment_country()} as country
+      ,
+      case 
+        when entry_page_url like '%/costa/club/magazine/%' 
+        then 'Magazine'
+        else 'Ecommerce'
+        end as flag_magazine
+      , item_id
+      , company_id
+      , report_suite_id
+      , segment_name
+      , sum(visits) as visits
+      , sum(total_orders) as orders
+      , sum(page_views) as page_views
+      , sum(bounces) as bounces
+      , sum(unique_visitors) as unique_visitors
+      , sum(new_visitors) as new_visitors
+  from ${ref("seo_dashboard_02_raw", "seo_adobeanalytics")}
+  group by
+      day
+      , year_month
+      , entry_page_url
+      , channel
+      , country
+      , flag_magazine
+      , item_id
+      , company_id
+      , report_suite_id
+      , segment_name
+)
+
+select 
+  tmp.*
+  , c.ID_Country
+  , t.ID_Traffic_Type
+from tmp 
+left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+on c.Country = tmp.country
+left join ${ref("seo_dashboard_04_rpt", "D_traffic")} t
+on t.Traffic_Type = tmp.channel
