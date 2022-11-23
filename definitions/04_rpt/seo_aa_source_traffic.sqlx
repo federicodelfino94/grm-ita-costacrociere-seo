@@ -16,7 +16,7 @@ config {
 with tmp as (
   select
         day
-      , cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month
+      , date_trunc(day, month) as year_month
       , entry_page_url
       , ${gsc_adobe_segment_channel()} as channel
       , ${gsc_adobe_segment_country()} as country
