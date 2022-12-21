@@ -1,4 +1,4 @@
-config {
+ config {
   type: "incremental",
   schema: "seo_dashboard_02_raw",
   name: "seo_forecasting",

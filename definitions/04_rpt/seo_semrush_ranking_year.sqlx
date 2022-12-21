@@ -1,0 +1,63 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_semrush_ranking_year",
+  tags: ["Semrush"]
+}
+
+with tmp as (
+  select 
+    CASE 
+        WHEN upper(trim(Market)) = 'IT' then 'Italy'
+        WHEN upper(trim(Market)) = 'FR' then 'France'
+        WHEN upper(trim(Market)) = 'ES' then 'Spain'
+        WHEN upper(trim(Market)) = 'DE' then 'Germany'
+        WHEN upper(trim(Market)) IN ('CH', 'CH-FR', 'CH-DE') then 'Switzerland'
+        WHEN upper(trim(Market)) = 'AT' then 'Austria'
+        WHEN upper(trim(Market)) = 'BR' then 'Brazil'
+        WHEN upper(trim(Market)) = 'AR' then 'Argentina'
+        WHEN upper(trim(Market)) = 'RU' then 'Russia'
+        WHEN upper(trim(Market)) = 'UK' then 'UK'
+      ELSE 'N/A'
+    END as Market
+    , Brand_vs_Unbrand
+    , Main_Cluster
+    , Sub_Cluster
+    , Keywords
+    , Key_Field
+    , IFNULL(SAFE_CAST(January as INT64), 0) as January
+    , Offsite_January
+    , IFNULL(SAFE_CAST(February as INT64), 0) as February
+    , Offsite_February
+    , IFNULL(SAFE_CAST(March as INT64), 0) as March
+    , Offsite_March
+    , IFNULL(SAFE_CAST(April as INT64), 0) as April
+    , Offsite_April
+    , IFNULL(SAFE_CAST(May as INT64), 0) as May
+    , Offsite_May
+    , IFNULL(SAFE_CAST(June as INT64), 0) as June
+    , Offsite_June
+    , IFNULL(SAFE_CAST(July as INT64), 0) as July
+    , Offsite_July
+    , IFNULL(SAFE_CAST(August as INT64), 0) as August
+    , Offsite_August
+    , IFNULL(SAFE_CAST(September as INT64), 0) as September
+    , Offsite_September
+    , IFNULL(SAFE_CAST(October as INT64), 0) as October
+    , Offsite_October
+    , IFNULL(SAFE_CAST(November as INT64), 0) as November
+    , Offsite_November
+    , case when Position_Label = "04-ott" then "04-10"
+    ELSE Position_Label END Position_Label
+    , Visibility_Index
+    , SAFE_CAST(Avg_Search_Volume_Monthly AS INT) as Avg_Search_Volume_Monthly
+    , Occurences
+	from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking_year")}
+)
+
+select 
+  tmp.*
+  , c.ID_Country
+from tmp
+LEFT JOIN ${ref("seo_dashboard_04_rpt", "D_country")} c
+on c.Country = tmp.Market

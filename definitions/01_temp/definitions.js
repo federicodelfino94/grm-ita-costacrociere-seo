@@ -39,3 +39,9 @@ declare({
     schema: "seo_dashboard_01_temp",
     description: ""
 })
+
+declare({
+    name: "seo_semrush_ranking_year",
+    schema: "seo_dashboard_01_temp",
+    description: ""
+})
