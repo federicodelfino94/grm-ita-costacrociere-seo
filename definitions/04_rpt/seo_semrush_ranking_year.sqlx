@@ -7,7 +7,8 @@ config {
 
 with tmp as (
   select 
-    CASE 
+      Year
+    , CASE 
         WHEN upper(trim(Market)) = 'IT' then 'Italy'
         WHEN upper(trim(Market)) = 'FR' then 'France'
         WHEN upper(trim(Market)) = 'ES' then 'Spain'
@@ -24,7 +25,6 @@ with tmp as (
     , Main_Cluster
     , Sub_Cluster
     , Keywords
-    , Key_Field
     , IFNULL(SAFE_CAST(January as INT64), 0) as January
     , Offsite_January
     , IFNULL(SAFE_CAST(February as INT64), 0) as February
@@ -47,10 +47,12 @@ with tmp as (
     , Offsite_October
     , IFNULL(SAFE_CAST(November as INT64), 0) as November
     , Offsite_November
+    , IFNULL(SAFE_CAST(December as INT64), 0) as December
+    , Offsite_December
     , case when Position_Label = "04-ott" then "04-10"
     ELSE Position_Label END Position_Label
     , Visibility_Index
-    , SAFE_CAST(Avg_Search_Volume_Monthly AS INT) as Avg_Search_Volume_Monthly
+    , SAFE_CAST(Avg_Searc_Volume_Monthly AS INT) as Avg_Searc_Volume_Monthly
     , Occurences
 	from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking_year")}
 )
