@@ -41,7 +41,7 @@ declare({
 })
 
 declare({
-    name: "seo_semrush_ranking_year",
+    name: "seo_semrush_ranking_year_sm",
     schema: "seo_dashboard_01_temp",
     description: ""
 })

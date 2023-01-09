@@ -7,7 +7,7 @@ config {
 
 with tmp as (
   select 
-      Year
+    Year
     , CASE 
         WHEN upper(trim(Market)) = 'IT' then 'Italy'
         WHEN upper(trim(Market)) = 'FR' then 'France'
@@ -49,17 +49,71 @@ with tmp as (
     , Offsite_November
     , IFNULL(SAFE_CAST(December as INT64), 0) as December
     , Offsite_December
+    , Onsiteoffsite
     , case when Position_Label = "04-ott" then "04-10"
     ELSE Position_Label END Position_Label
     , Visibility_Index
-    , SAFE_CAST(Avg_Searc_Volume_Monthly AS INT) as Avg_Searc_Volume_Monthly
+    , SAFE_CAST(Avg_Search_Volume_Monthly AS INT) as Avg_Search_Volume_Monthly
     , Occurences
-	from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking_year")}
+	from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking_year_sm")}
 )
-
+, tmp2 as (
 select 
   tmp.*
   , c.ID_Country
 from tmp
 LEFT JOIN ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Market
+)
+
+
+
+SELECT 
+Year
+, Market
+, Brand_vs_Unbrand
+, Main_Cluster
+, Sub_Cluster
+, Keywords
+, MAX(January) as January
+, MAX(Offsite_January) as Offsite_January
+, MAX(February) AS February
+, MAX(Offsite_February) AS Offsite_February
+, MAX(March) AS March
+, MAX(Offsite_March) AS Offsite_March
+, MAX(April) AS April
+, MAX(Offsite_April) AS Offsite_April
+, MAX(May) AS May
+, MAX(Offsite_May) AS Offsite_May
+, MAX(June) AS June
+, MAX(Offsite_June) AS Offsite_June
+, MAX(July) AS July
+, MAX(Offsite_July) AS Offsite_July
+, MAX(August) AS August
+, MAX(Offsite_August) AS Offsite_August
+, MAX(September) AS September
+, MAX(Offsite_September) AS Offsite_September
+, MAX(October) AS October
+, MAX(Offsite_October) AS Offsite_October
+, MAX(November) AS November
+, MAX(Offsite_November) AS Offsite_November
+, MAX(December) AS December
+, MAX(Offsite_December) AS Offsite_December
+, Onsiteoffsite
+, Position_Label
+, MAX(Visibility_Index) AS Visibility_Index
+, MAX(Avg_Search_Volume_Monthly) AS Avg_Search_Volume_Monthly
+, MAX(Occurences) AS Occurences
+, ID_Country
+FROM tmp2
+GROUP BY Year 
+, Market
+, Brand_vs_Unbrand
+, Main_Cluster
+, Sub_Cluster
+, Keywords
+, Onsiteoffsite
+, Position_Label
+, ID_Country
+
+
