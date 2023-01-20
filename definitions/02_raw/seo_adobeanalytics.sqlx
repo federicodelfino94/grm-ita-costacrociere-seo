@@ -26,7 +26,7 @@ with up_to_date as (
         order by dt_created desc
     ) rn
   from ${ref("seo_dashboard_01_temp", "seo_adobeanalytics")}
-  QUALIFY rn = 1
+  QUALIFY rn = 1 
 )
 
   select 
@@ -44,4 +44,14 @@ with up_to_date as (
       , new_visitors
       , ${gsc_adobe_segment_country()} as country
       , ${gsc_adobe_segment_channel()} as channel
+      , gross_revenue
+      , avg_time_spent_per_visit
+      , goal_search_result_page
+      , goal_booking_funnel_access
+      , goal_uc1
+      , goal_uc2
+      , cos_new_visitors
   from up_to_date
+
+
+  

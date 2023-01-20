@@ -45,3 +45,9 @@ declare({
     schema: "seo_dashboard_01_temp",
     description: ""
 })
+
+declare({
+    name: "seo_segment_exclude",
+    schema: "seo_dashboard_utils",
+    description: ""
+})

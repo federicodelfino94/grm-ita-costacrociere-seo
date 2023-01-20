@@ -59,3 +59,8 @@ left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.country
 left join ${ref("seo_dashboard_04_rpt", "D_traffic")} t
 on t.Traffic_Type = tmp.channel
+left join ${ref("seo_dashboard_utils", "seo_segment_exclude")} d
+on tmp.segment_name= d.segment 
+where d.segment is null
+
+
