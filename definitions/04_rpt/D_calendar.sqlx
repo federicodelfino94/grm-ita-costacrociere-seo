@@ -4,8 +4,9 @@ config {
   name: "D_calendar"
 }
 
-SELECT
-  d as year_month
+SELECT distinct
+date_trunc(d,month) as date
+, d as year_month
   , extract(year from d) as Year
   , extract(month from d) as Month_Number
   , FORMAT_DATE('%B', d) as Month 

@@ -51,3 +51,9 @@ declare({
     schema: "seo_dashboard_utils",
     description: ""
 })
+
+declare({
+    name: "seo_cfg_position_label",
+    schema: "seo_dashboard_utils",
+    description: ""
+})

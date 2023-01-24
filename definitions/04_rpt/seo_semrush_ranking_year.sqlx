@@ -58,6 +58,7 @@ with tmp as (
 	from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking_year_sm")}
 )
 , tmp2 as (
+
 select 
   tmp.*
   , c.ID_Country
@@ -100,7 +101,7 @@ Year
 , MAX(December) AS December
 , MAX(Offsite_December) AS Offsite_December
 , Onsiteoffsite
-, Position_Label
+, tmp2.Position_Label
 , MAX(Visibility_Index) AS Visibility_Index
 , MAX(Avg_Search_Volume_Monthly) AS Avg_Search_Volume_Monthly
 , MAX(Occurences) AS Occurences
@@ -116,5 +117,3 @@ GROUP BY Year
 , Onsiteoffsite
 , Position_Label
 , ID_Country
-
-

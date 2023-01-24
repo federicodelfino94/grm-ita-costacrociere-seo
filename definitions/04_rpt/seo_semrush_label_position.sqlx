@@ -1,0 +1,68 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_utils",
+  name: "seo_semrush_label_position",
+  tags: ["Semrush"]
+}
+
+with t as(
+SELECT 
+Year
+, Market
+, Brand_vs_Unbrand
+, Main_Cluster
+, Sub_Cluster
+, Keywords
+, ID_Country
+, Onsiteoffsite
+, Occurency
+, month
+, Position_Label
+FROM  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
+UNPIVOT(Occurency for month in (Offsite_January, 
+Offsite_February,
+Offsite_March,
+Offsite_April,
+Offsite_May,
+Offsite_June,
+Offsite_July,
+Offsite_August,
+Offsite_September,
+Offsite_October,
+Offsite_November,
+Offsite_December))
+where Onsiteoffsite = 'Offsite'
+)
+
+SELECT 
+Year
+, Market
+, Brand_vs_Unbrand
+, Main_Cluster
+, Sub_Cluster
+, Keywords
+, ID_Country
+, Onsiteoffsite
+, Occurency
+, t.Position_Label
+, ifnull (b.Position_Label, 'Over 2° page') as position_label_monthly
+, ifnull (b.position_id, 4) as position_id
+, CASE
+    WHEN lower(month) like '%jan%' then Date(year, 1, 1)
+    WHEN lower(month) like '%feb%' then Date(year, 2, 1)
+    WHEN lower(month) like '%mar%' then Date(year, 3, 1)
+    WHEN lower(month) like '%apr%' then Date(year, 4, 1)
+    WHEN lower(month) like '%may%' then Date(year, 5, 1)
+    WHEN lower(month) like '%jun%' then Date(year, 6, 1)
+    WHEN lower(month) like '%jul%' then Date(year, 7, 1)
+    WHEN lower(month) like '%aug%' then Date(year, 8, 1)
+    WHEN lower(month) like '%sep%' then Date(year, 9, 1)
+    WHEN lower(month) like '%oct%' then Date(year, 10, 1)
+    WHEN lower(month) like '%nov%' then Date(year, 11, 1)
+    WHEN lower(month) like '%dec%' then Date(year, 12, 1)
+    END as date
+, CONCAT (id_country, keywords, year) as join_key
+FROM t
+LEFT JOIN ${ref("seo_dashboard_utils", "seo_cfg_position_label")} b
+on t.occurency between b.start_position and b.end_position
+--where t.occurency > 0

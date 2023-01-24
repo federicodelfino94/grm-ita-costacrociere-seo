@@ -1,0 +1,24 @@
+config {
+  type: "view",
+  schema: "seo_dashboard_04_rpt",
+  name: "d_calendar_semrush"
+}
+
+SELECT distinct
+   cast(date_trunc(d,month) as datetime) as date
+  , extract(year from d) as Year
+  , extract(month from d) as Month_Number
+  , FORMAT_DATE('%B', d) as Month 
+  , CONCAT('Q', cast(extract(quarter from d) as string)) as Quarter
+  , extract(year from date_add(d, INTERVAL 1 month)) as Fiscal_Year
+  , CONCAT('Q', cast(extract(quarter from date_add(d, INTERVAL 1 month)) as string)) as Fiscal_Quarter  
+  , extract(month from date_add(d, INTERVAL 1 month)) as Fiscal_Month_Number
+  , CONCAT(cast(extract(year from date_add(d, INTERVAL 1 month)) as string), " ", FORMAT_DATE('%B', d)) AS FY_Month
+  , extract(year from date_add(d, INTERVAL 1 month))*100+extract(month from date_add(d, INTERVAL 1 month)) as FY_Month_Number
+FROM UNNEST (
+    GENERATE_DATE_ARRAY(
+      (select date(max(Year),1,1) from  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}),
+      (select date(max(Year),12,31) from  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}),
+      INTERVAL 1 DAY)
+      ) as d
+
