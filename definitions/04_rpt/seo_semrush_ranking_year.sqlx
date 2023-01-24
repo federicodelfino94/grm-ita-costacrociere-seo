@@ -105,6 +105,7 @@ Year
 , MAX(Avg_Search_Volume_Monthly) AS Avg_Search_Volume_Monthly
 , MAX(Occurences) AS Occurences
 , ID_Country
+,concat (id_country, keywords, year) as join_key
 FROM tmp2
 GROUP BY Year 
 , Market
