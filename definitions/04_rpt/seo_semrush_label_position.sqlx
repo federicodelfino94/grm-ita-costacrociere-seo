@@ -18,7 +18,7 @@ Year
 , Occurency
 , month
 , Position_Label
-FROM  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
+FROM ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
 UNPIVOT(Occurency for month in (Offsite_January, 
 Offsite_February,
 Offsite_March,
