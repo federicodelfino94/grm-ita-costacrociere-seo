@@ -62,8 +62,7 @@ Offsite_December))
 where Onsiteoffsite = 'Offsite'
 )
 , t_final as(
-SELECT 
-a.Year
+select a.Year
 , a.Market
 , a.Brand_vs_Unbrand
 , a.Main_Cluster
@@ -71,21 +70,53 @@ a.Year
 , a.Keywords
 , a.ID_Country
 , a.Onsiteoffsite
-, a.Occurency 
-, b.Position
+, sum(a.Occurency) as Occurency
+, sum(a.Position) as Position
 , a.month
 , a.Position_Label
-FROM t2 as a
-join t as b on a.Year = b.Year 
-and a.Market = b.Market
-and a.Brand_vs_Unbrand = b.Brand_vs_Unbrand
-and a.Main_Cluster = b.Main_Cluster
-and a.Sub_Cluster = b.Sub_Cluster
-and a.Keywords = b.Keywords
-and a.ID_Country = b.ID_Country
-and a.Onsiteoffsite = b.Onsiteoffsite
-and a.month = b.month
-and a.Position_Label = b.Position_Label
+from (
+  SELECT 
+  a.Year
+  , a.Market
+  , a.Brand_vs_Unbrand
+  , a.Main_Cluster
+  , a.Sub_Cluster
+  , a.Keywords
+  , a.ID_Country
+  , a.Onsiteoffsite
+  , a.Occurency 
+  , 0 as Position
+  , a.month
+  , a.Position_Label
+  FROM t2 as a
+UNION ALL
+  SELECT 
+  a.Year
+  , a.Market
+  , a.Brand_vs_Unbrand
+  , a.Main_Cluster
+  , a.Sub_Cluster
+  , a.Keywords
+  , a.ID_Country
+  , a.Onsiteoffsite
+  , 0 as Occurency 
+  , a.Position 
+  , a.month
+  , a.Position_Label
+  FROM t as a
+) a
+group by 
+  year
+,  Market
+, Brand_vs_Unbrand
+, Main_Cluster
+, Sub_Cluster
+, Keywords
+, ID_Country
+, Onsiteoffsite
+, month
+, Position_Label
+
 )
 
 SELECT 
