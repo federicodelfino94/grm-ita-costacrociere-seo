@@ -15,11 +15,11 @@ Year
 , Keywords
 , ID_Country
 , Onsiteoffsite
-, Occurency
+, Position
 , month
 , Position_Label
 FROM ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
-UNPIVOT(Occurency for month in (January, 
+UNPIVOT(Position for month in (January, 
 February,
 March,
 April,
@@ -33,6 +33,60 @@ November,
 December))
 where Onsiteoffsite = 'Offsite'
 )
+, t2 as(
+SELECT 
+Year
+, Market
+, Brand_vs_Unbrand
+, Main_Cluster
+, Sub_Cluster
+, Keywords
+, ID_Country
+, Onsiteoffsite
+, Occurency
+, month
+, Position_Label
+FROM ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
+UNPIVOT(Occurency for month in (Offsite_January, 
+Offsite_February,
+Offsite_March,
+Offsite_April,
+Offsite_May,
+Offsite_June,
+Offsite_July,
+Offsite_August,
+Offsite_September,
+Offsite_October,
+Offsite_November,
+Offsite_December))
+where Onsiteoffsite = 'Offsite'
+)
+, t_final as(
+SELECT 
+a.Year
+, a.Market
+, a.Brand_vs_Unbrand
+, a.Main_Cluster
+, a.Sub_Cluster
+, a.Keywords
+, a.ID_Country
+, a.Onsiteoffsite
+, a.Occurency 
+, b.Position
+, a.month
+, a.Position_Label
+FROM t2 as a
+join t as b on a.Year = b.Year 
+and a.Market = b.Market
+and a.Brand_vs_Unbrand = b.Brand_vs_Unbrand
+and a.Main_Cluster = b.Main_Cluster
+and a.Sub_Cluster = b.Sub_Cluster
+and a.Keywords = b.Keywords
+and a.ID_Country = b.ID_Country
+and a.Onsiteoffsite = b.Onsiteoffsite
+and a.month = b.month
+and a.Position_Label = b.Position_Label
+)
 
 SELECT 
 Year
@@ -44,25 +98,24 @@ Year
 , ID_Country
 , Onsiteoffsite
 , Occurency
-, t.Position_Label
+, t_final.Position_Label
 , ifnull (b.Position_Label, 'Over 2° page') as position_label_monthly
 , ifnull (b.position_id, 4) as position_id
 , CASE
-    WHEN lower(month) like '%jan%' then Date(year, 1, 1)
-    WHEN lower(month) like '%feb%' then Date(year, 2, 1)
-    WHEN lower(month) like '%mar%' then Date(year, 3, 1)
-    WHEN lower(month) like '%apr%' then Date(year, 4, 1)
-    WHEN lower(month) like '%may%' then Date(year, 5, 1)
-    WHEN lower(month) like '%jun%' then Date(year, 6, 1)
-    WHEN lower(month) like '%jul%' then Date(year, 7, 1)
-    WHEN lower(month) like '%aug%' then Date(year, 8, 1)
-    WHEN lower(month) like '%sep%' then Date(year, 9, 1)
-    WHEN lower(month) like '%oct%' then Date(year, 10, 1)
-    WHEN lower(month) like '%nov%' then Date(year, 11, 1)
-    WHEN lower(month) like '%dec%' then Date(year, 12, 1)
+      WHEN lower(month) like '%jan%' then Date(year, 1, 1)
+      WHEN lower(month) like '%feb%' then Date(year, 2, 1)
+      WHEN lower(month) like '%mar%' then Date(year, 3, 1)
+      WHEN lower(month) like '%apr%' then Date(year, 4, 1)
+      WHEN lower(month) like '%may%' then Date(year, 5, 1)
+      WHEN lower(month) like '%jun%' then Date(year, 6, 1)
+      WHEN lower(month) like '%jul%' then Date(year, 7, 1)
+      WHEN lower(month) like '%aug%' then Date(year, 8, 1)
+      WHEN lower(month) like '%sep%' then Date(year, 9, 1)
+      WHEN lower(month) like '%oct%' then Date(year, 10, 1)
+      WHEN lower(month) like '%nov%' then Date(year, 11, 1)
+      WHEN lower(month) like '%dec%' then Date(year, 12, 1)
     END as date
 , CONCAT (id_country, keywords, year) as join_key
-FROM t
+FROM t_final
 LEFT JOIN ${ref("seo_dashboard_utils", "seo_cfg_position_label")} b
-on t.occurency between b.start_position and b.end_position
---where t.occurency > 0
+on t_final.Position between b.start_position and b.end_position
