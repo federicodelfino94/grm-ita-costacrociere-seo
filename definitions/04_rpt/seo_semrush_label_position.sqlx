@@ -1,6 +1,6 @@
 config {
   type: "table",
-  schema: "seo_dashboard_utils",
+  schema: "seo_dashboard_04_rpt",
   name: "seo_semrush_label_position",
   tags: ["Semrush"]
 }
@@ -15,11 +15,11 @@ Year
 , Keywords
 , ID_Country
 , Onsiteoffsite
-, Position
+, Position_nr
 , month
 , Position_Label
 FROM ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
-UNPIVOT(Position for month in (January, 
+UNPIVOT(Position_nr for month in (January, 
 February,
 March,
 April,
@@ -71,7 +71,7 @@ select a.Year
 , a.ID_Country
 , a.Onsiteoffsite
 , sum(a.Occurency) as Occurency
-, sum(a.Position) as Position
+, sum(a.Position_nr) as Position_nr
 , a.month
 , a.Position_Label
 from (
@@ -85,7 +85,7 @@ from (
   , a.ID_Country
   , a.Onsiteoffsite
   , a.Occurency 
-  , 0 as Position
+  , 0 as Position_nr
   , a.month
   , a.Position_Label
   FROM t2 as a
@@ -100,7 +100,7 @@ UNION ALL
   , a.ID_Country
   , a.Onsiteoffsite
   , 0 as Occurency 
-  , a.Position 
+  , a.Position_nr 
   , a.month
   , a.Position_Label
   FROM t as a
@@ -118,7 +118,7 @@ group by
 , Position_Label
 
 )
-
+, t_last as (
 SELECT 
 Year
 , Market
@@ -129,9 +129,8 @@ Year
 , ID_Country
 , Onsiteoffsite
 , Occurency
+, Position_nr
 , t_final.Position_Label
-, ifnull (b.Position_Label, 'Over 2° page') as position_label_monthly
-, ifnull (b.position_id, 4) as position_id
 , CASE
       WHEN lower(month) like '%jan%' then Date(year, 1, 1)
       WHEN lower(month) like '%feb%' then Date(year, 2, 1)
@@ -148,5 +147,58 @@ Year
     END as date
 , CONCAT (id_country, keywords, year) as join_key
 FROM t_final
+
+)
+, t_final2 as (
+select 
+  Year,
+  Market,
+  Brand_vs_Unbrand,
+  Main_Cluster,
+  Sub_Cluster,
+  Keywords,
+  ID_Country,
+  Onsiteoffsite,
+  sum(Occurency) as Occurency,
+  sum(Position_nr) as Position_nr,
+  Position_Label,
+  date,
+  1 counter,
+  join_key
+from t_last 
+--where   keywords = 'kreuzfahrten' and date = '2022-05-01'
+group by 
+        Year,
+        Market,
+        Brand_vs_Unbrand,
+        Main_Cluster,
+        Sub_Cluster,
+        Keywords,
+        ID_Country,
+        Onsiteoffsite,
+        Position_Label,
+        date,
+        join_key
+)
+select Year,
+  Market,
+  Brand_vs_Unbrand,
+  Main_Cluster,
+  Sub_Cluster,
+  Keywords,
+  ID_Country,
+  Onsiteoffsite,
+  Occurency,
+  Position_nr,
+  a.Position_Label,
+  ifnull (b.Position_Label, 'Over 2° page') as position_label_monthly,
+  ifnull (b.position_id, 4) as position_id,
+  date,
+  1 counter,
+  join_key
+   from t_final2 a
 LEFT JOIN ${ref("seo_dashboard_utils", "seo_cfg_position_label")} b
-on t_final.Position between b.start_position and b.end_position
+on a.Position_nr between b.start_position and b.end_position
+
+
+
