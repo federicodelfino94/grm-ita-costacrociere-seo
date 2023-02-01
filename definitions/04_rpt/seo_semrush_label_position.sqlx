@@ -19,18 +19,18 @@ Year
 , month
 , Position_Label
 FROM ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
-UNPIVOT(Occurency for month in (Offsite_January, 
-Offsite_February,
-Offsite_March,
-Offsite_April,
-Offsite_May,
-Offsite_June,
-Offsite_July,
-Offsite_August,
-Offsite_September,
-Offsite_October,
-Offsite_November,
-Offsite_December))
+UNPIVOT(Occurency for month in (January, 
+February,
+March,
+April,
+May,
+June,
+July,
+August,
+September,
+October,
+November,
+December))
 where Onsiteoffsite = 'Offsite'
 )
 
