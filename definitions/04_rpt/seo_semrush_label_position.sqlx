@@ -166,7 +166,6 @@ select
   1 counter,
   join_key
 from t_last 
---where   keywords = 'kreuzfahrten' and date = '2022-05-01'
 group by 
         Year,
         Market,
