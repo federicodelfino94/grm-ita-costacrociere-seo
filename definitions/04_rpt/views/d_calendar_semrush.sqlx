@@ -15,6 +15,10 @@ SELECT distinct
   , extract(month from date_add(d, INTERVAL 1 month)) as Fiscal_Month_Number
   , CONCAT(cast(extract(year from date_add(d, INTERVAL 1 month)) as string), " ", FORMAT_DATE('%B', d)) AS FY_Month
   , extract(year from date_add(d, INTERVAL 1 month))*100+extract(month from date_add(d, INTERVAL 1 month)) as FY_Month_Number
+  , case 
+  when extract(month from d) = 1 then 12 
+  else  extract(month from d) -1 
+  end as month_order_tmp
 FROM UNNEST (
     GENERATE_DATE_ARRAY(
       (select date(max(Year),1,1) from  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}),

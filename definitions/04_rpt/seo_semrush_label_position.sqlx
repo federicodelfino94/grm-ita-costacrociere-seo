@@ -131,7 +131,7 @@ Year
 , Occurency
 , Position_nr
 , t_final.Position_Label
-, CASE
+, CASE 
       WHEN lower(month) like '%jan%' then Date(year, 1, 1)
       WHEN lower(month) like '%feb%' then Date(year, 2, 1)
       WHEN lower(month) like '%mar%' then Date(year, 3, 1)
@@ -143,7 +143,7 @@ Year
       WHEN lower(month) like '%sep%' then Date(year, 9, 1)
       WHEN lower(month) like '%oct%' then Date(year, 10, 1)
       WHEN lower(month) like '%nov%' then Date(year, 11, 1)
-      WHEN lower(month) like '%dec%' then Date(year, 12, 1)
+      WHEN lower(month) like '%dec%' then Date(year, 12, 1)  
     END as date
 , CONCAT (id_country, keywords, year) as join_key
 FROM t_final
