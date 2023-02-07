@@ -4,6 +4,7 @@ config {
   name: "d_calendar_semrush"
 }
 
+
 SELECT distinct
    cast(date_trunc(d,month) as datetime) as date
   , extract(year from d) as Year
@@ -21,8 +22,9 @@ SELECT distinct
   end as month_order_tmp
 FROM UNNEST (
     GENERATE_DATE_ARRAY(
-      (select date(max(Year),1,1) from  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}),
-      (select date(max(Year),12,31) from  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}),
+      (select date(min(Year),1,1) from  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}),
+      --(select date(max(Year),12,31) from  ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}),
+      (select max(date) from  ${ref("seo_dashboard_04_rpt", "seo_semrush_label_position")} where Position_nr <>0),
       INTERVAL 1 DAY)
       ) as d
-
+  

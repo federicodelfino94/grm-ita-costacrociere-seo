@@ -67,8 +67,6 @@ LEFT JOIN ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Market
 )
 
-
-
 SELECT 
 Year
 , Market
