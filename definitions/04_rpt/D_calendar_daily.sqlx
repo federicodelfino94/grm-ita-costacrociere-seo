@@ -1,0 +1,19 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_04_rpt",
+  name: "D_calendar_daily"
+}
+
+SELECT *
+, case
+  when month_nr = 12 then year + 1 
+  else year 
+  end as fiscal_year 
+, case when  month_nr  in (12, 1, 2) then 'Q1'
+  when  month_nr in (3,4,5) then 'Q2' 
+  when  month_nr in (6,7,8) then 'Q3' 
+  else 'Q4' 
+  end as fiscal_quarter  
+from ${resolve("seo_dashboard_utils", "vw_calendar_saturday_friday")}
+where date >= '2018-12-01' and date <= (select MAX(gadate) 
+from ${resolve("seo_dashboard_04_rpt", "seo_ga_source_traffic")})

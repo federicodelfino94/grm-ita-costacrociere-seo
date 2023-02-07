@@ -1,0 +1,66 @@
+config {
+  type: "incremental",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_ga_source_traffic_weekly",
+  uniqueKey: ["gadate", "ID_Country", "ID_Traffic_Type", "flag_Magazine"],
+  assertions: {
+    uniqueKey: ["gadate", "ID_Country", "ID_Traffic_Type", "flag_Magazine"]
+  },
+  bigquery: {
+    partitionBy: "gadate",
+    clusterBy: ["Country", "gachannelgrouping", "flag_Magazine"]
+  },
+  tags:["GA"]
+}
+
+with tmp as (
+  select 
+    gadate
+    ,cast(CONCAT(FORMAT_DATETIME("%Y-%m", gadate),'-01') as date) as year_month
+    ,gawebpropertyname
+    ,INITCAP(gachannelgrouping) as gachannelgrouping
+    , case
+        when gawebpropertyname = 'www.costacrociere.it' then 'Italy'
+        when gawebpropertyname = 'www.costacroisieres.fr' then 'France' 
+        when gawebpropertyname = 'costakreuzfahrten.ch' then 'Switzerland'
+        when gawebpropertyname = 'www.costacruises.co.uk' then 'UK'
+        when gawebpropertyname = 'www.costacruceros.es' then 'Spain'
+        -- when gawebpropertyname like '%.com/SE%' then 'Sweden'
+        when gawebpropertyname = 'www.costakreuzfahrten.at' then 'Austria'
+        when gawebpropertyname = 'Costa Kreuzfahrten' then 'Germany'
+        when gawebpropertyname = 'www.costacruceros.com' then 'Argentina'
+        -- when gawebpropertyname = 'www.costacruise.com' then 'Denmark'
+        when gawebpropertyname = 'www.costacruzeiros.com' then 'Brazil'
+        when gawebpropertyname = 'www.costacruises.ru' then 'Russia'
+        else 'N/A'
+      end as Country
+    --,galandingpagepath
+    , case 
+        when gawebpropertyname = 'costakreuzfahrten.ch' -- Svizzera caso speciale: page path inizia con /de , /fr
+          and starts_with(substring(galandingpagepath, 4), '/costa-club/magazine/') = true
+                then 'Magazine'
+        when gawebpropertyname <> 'costakreuzfahrten.ch' -- tutti gli altri casi
+          and starts_with(galandingpagepath, '/costa-club/magazine/') = true
+            then 'Magazine'
+        else 'Ecommerce'
+      end as flag_Magazine
+    , sum(gapageviews) as gapageviews
+    , sum(gasessions) as gasessions
+    , sum(gatransactions) as gatransactions
+    , sum(gausers) as gausers
+  from ${ref("seo_dashboard_02_raw", "seo_ga_source_traffic")}
+  group by
+    gadate
+    , gawebpropertyname
+    , INITCAP(gachannelgrouping)
+    , flag_Magazine
+)
+select 
+  tmp.*
+  , c.ID_Country
+  , t.ID_Traffic_Type
+from tmp 
+left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+on c.Country = tmp.Country
+left join ${ref("seo_dashboard_04_rpt", "D_traffic")} t
+on t.Traffic_Type = tmp.gachannelgrouping
