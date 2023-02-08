@@ -61,6 +61,10 @@ with m as (
   select 
     'N/A' as Country,
     'N/A' as CountryGroup
+    UNION ALL
+  select 
+    'USA' as Country,
+    'Secondary' as CountryGroup
 )
 select 
   Country
