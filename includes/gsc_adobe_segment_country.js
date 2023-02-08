@@ -16,6 +16,7 @@ module.exports = () => {
             when upper(segment_name) like '%==%BE%' then 'Belgium'
             when upper(segment_name) like '%==%NL%' then 'Netherlands'
             when upper(segment_name) like '%==%FI%' then 'Finland'
+            when upper(segment_name) like '%==%US%' then 'USA'
             else 
             'N/A' 
         end

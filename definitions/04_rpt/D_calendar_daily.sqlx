@@ -14,6 +14,7 @@ SELECT *
   when  month_nr in (6,7,8) then 'Q3' 
   else 'Q4' 
   end as fiscal_quarter  
+  , case when month_nr = 12 then 1 else month_nr +1 end as month_order
 from ${resolve("seo_dashboard_utils", "vw_calendar_saturday_friday")}
 where date >= '2018-12-01' and date <= (select MAX(gadate) 
 from ${resolve("seo_dashboard_04_rpt", "seo_ga_source_traffic")})
