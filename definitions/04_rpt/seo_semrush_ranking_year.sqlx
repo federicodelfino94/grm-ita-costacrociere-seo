@@ -19,6 +19,7 @@ with tmp as (
         WHEN upper(trim(Market)) = 'AR' then 'Argentina'
         WHEN upper(trim(Market)) = 'RU' then 'Russia'
         WHEN upper(trim(Market)) = 'UK' then 'UK'
+        when upper(trim(Market)) = 'US' then 'USA'
       ELSE 'N/A'
     END as Market
     , Brand_vs_Unbrand

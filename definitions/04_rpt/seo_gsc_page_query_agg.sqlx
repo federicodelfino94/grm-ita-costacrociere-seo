@@ -1,0 +1,16 @@
+config {
+  type: "table",
+  name: "seo_gsc_page_query_agg",
+  schema: "seo_dashboard_04_rpt",
+  tags:["GSC"]
+}
+
+
+select a.*
+from ${ref("seo_dashboard_04_rpt", "seo_gsc_page_query_weekly")} a
+join ${ref("seo_dashboard_04_rpt", "D_calendar_daily")} b
+on b.date = a.day 
+where b.month_dt >= '2022-12-01'
+UNION ALL 
+SELECT * from  ${ref("seo_dashboard_04_rpt", "seo_gsc_page_query")} c
+where c.year_month < '2022-12-01'

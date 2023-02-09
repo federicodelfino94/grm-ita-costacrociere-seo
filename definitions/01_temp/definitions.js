@@ -15,7 +15,17 @@ declare({
     description: ""
 })
 declare({
+    name: "seo_gsc_page_query_daily",
+    schema: "seo_dashboard_01_temp",
+    description: ""
+})
+declare({
     name: "seo_gsc_query",
+    schema: "seo_dashboard_01_temp",
+    description: ""
+})
+declare({
+    name: "seo_gsc_query_daily",
     schema: "seo_dashboard_01_temp",
     description: ""
 })

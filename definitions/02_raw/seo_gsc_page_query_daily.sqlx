@@ -1,0 +1,32 @@
+config {
+  type: "incremental",
+  name: "seo_gsc_page_query_daily",
+  schema: "seo_dashboard_02_raw",
+  uniqueKey: ["day", "site", "page", "query"],
+  assertions: {
+    uniqueKey: ["day", "site", "page", "query"]
+  },
+  bigquery: {
+    partitionBy: "DATE_TRUNC(day, MONTH)",
+    clusterBy: ["site", "page", "query"]
+  },
+  tags:["GSC"]
+}
+
+with tmp as (
+  select
+    * 
+    , row_number() over (
+        partition by day
+        , site
+        , page
+        , query
+        order by dt_created desc
+    ) rn
+  from ${ref("seo_dashboard_01_temp", "seo_gsc_page_query_daily")}
+  QUALIFY rn = 1 
+)
+
+select 
+* except(rn, dt_created, dt_updated, dt_filename)
+from tmp

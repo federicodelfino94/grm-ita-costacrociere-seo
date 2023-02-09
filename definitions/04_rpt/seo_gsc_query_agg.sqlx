@@ -1,0 +1,40 @@
+config {
+  type: "table",
+  name: "seo_gsc_query_agg",
+  schema: "seo_dashboard_04_rpt",
+  uniqueKey: ["day", "site", "query"],
+  assertions: {
+    uniqueKey: ["day", "site", "query"]
+  },
+  bigquery: {
+    partitionBy: "DATE_TRUNC(day, MONTH)",
+    clusterBy: ["site", "query"]
+  },
+  tags:["GSC"]
+}
+with tmp as (
+  select
+    b.week_start as day 
+    , lower(site) as site
+    , lower(trim(SUBSTRING(query, 0, 200))) as query
+    , ${gsc_brand_generic_supergeneric_attribution()} as Brand_Generic_SuperGeneric
+    , ${gsc_country_attribution()} as Country
+    , sum(impressions) as impressions
+    , sum(clicks) as clicks
+    , avg(position) as position
+  from ${ref("seo_dashboard_01_temp", "seo_gsc_query_daily")} a
+  join ${ref("seo_dashboard_04_rpt", "D_calendar_daily")} b 
+  on b.date = a.day 
+  group by 
+    b.week_start 
+    , lower(site)
+    , lower(trim(SUBSTRING(query, 0, 200)))
+    , Country
+    , Brand_Generic_SuperGeneric
+)
+select 
+  tmp.*
+  , c.ID_Country
+from tmp 
+left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+on c.Country = tmp.Country
