@@ -3,10 +3,9 @@ config {
   //type: "table",
   schema: "seo_dashboard_04_rpt",
   name: "seo_gsc_total",
-  // dependencies: ["data_flow_insertion_log"],
-  uniqueKey: ["year_month", "site"],
+  uniqueKey: ["day", "site"],
   assertions: {
-    uniqueKey: ["year_month", "site"]  
+    uniqueKey: ["day", "site"]  
   },
   bigquery: {
     partitionBy: "DATE_TRUNC(year_month, MONTH)",
@@ -15,47 +14,29 @@ config {
   tags:["GSC"]
 }
 
--- pre_operations {
---   declare ts default (
---     select MIN(file_upload_ts) 
---     from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
---     where ID_data_flow = 3 --data_flow_name = 'seo_gsc_total'
---     and processed_flag = FALSE
---   )
--- }
-
-
 with tmp as (
-  select
-    cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month
+  select 
+    b.week_start as day
+    , b.month_dt as year_month
     , lower(site) as site
     , ${gsc_country_attribution()} as Country
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position
-  from ${ref("seo_dashboard_01_temp", "seo_gsc_total")}
-  -- ${ when(
-  --   incremental(),
-  --   `WHERE dt_created >= ts`
-  --   )
-  -- }
+  from ${ref("seo_dashboard_01_temp", "seo_gsc_total")} a
+  join  ${ref("seo_dashboard_04_rpt", "D_calendar_daily")} b 
+  on a.day= b.date
   group by 
-    cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) 
+    b.week_start
+    , b.month_dt
     , lower(site)
     , Country
 )
+
 select 
   tmp.*
   , c.ID_Country
 from tmp 
 left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Country
-
-
--- post_operations {
---   UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
---   SET processed_flag = TRUE
---   where file_upload_ts >= ts
---   and ID_data_flow = 3 --data_flow_name = 'seo_gsc_total'
--- }
-
+where c.ID_country is not null

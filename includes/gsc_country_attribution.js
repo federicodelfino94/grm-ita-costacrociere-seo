@@ -13,6 +13,7 @@ module.exports = () => {
             when site = 'https://www.costacruises.dk/' then 'Denmark'
             when site = 'https://www.costacruzeiros.com/' then 'Brazil'
             when site = 'https://www.costacruises.ru/' then 'Russia'
+            when site = 'https://www.costacruises.com/' then 'USA'
             else 'N/A'
         end
     `
