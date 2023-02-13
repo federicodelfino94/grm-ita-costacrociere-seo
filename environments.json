@@ -5,11 +5,19 @@
       "configOverride": {},
       "schedules": [
         {
-          "name": "Monthly, 4th day, 1am",
-          "cron": "0 1 4 * *",
+          "name": "Daily, 5am",
+          "cron": "0  5 * * *",
           "options": {
             "includeDependencies": true
-          }
+          },
+          "notify": [
+            {
+              "channel": "seo_dashboard",
+              "statuses": [
+                "FAILURE"
+              ]
+            }
+          ]
         },
         {
           "name": "Daily 1am UTC",
