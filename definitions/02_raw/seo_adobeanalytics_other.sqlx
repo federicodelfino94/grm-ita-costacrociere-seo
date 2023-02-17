@@ -1,0 +1,57 @@
+config {
+  type: "incremental",
+  name: "seo_adobeanalytics_other",
+  schema: "seo_dashboard_02_raw",
+  uniqueKey: ["company_id", "report_suite_id", "segment_name", "day", "item_id", "entry_page_url"],
+  assertions: {
+    uniqueKey: ["company_id", "report_suite_id", "segment_name", "day", "item_id", "entry_page_url"]
+  },
+  bigquery: {
+    partitionBy: "day"
+  },
+  tags:["ADOBE"]
+}
+
+with up_to_date as (
+  select
+    * 
+    , row_number() over (
+        partition by 
+          company_id
+        , report_suite_id
+        , segment_name
+        , day
+        , item_id
+        , entry_page_url
+        order by dt_created desc
+    ) rn
+  from ${ref("seo_dashboard_01_temp", "seo_adobeanalytics_other")}
+  QUALIFY rn = 1 
+)
+
+  select 
+      company_id
+      , report_suite_id
+      , segment_name
+      , day
+      , item_id
+      , entry_page_url
+      , visits
+      , total_orders
+      , page_views
+      , bounces
+      , unique_visitors
+      , new_visitors
+      , ${gsc_adobe_segment_country()} as country
+      , ${adobe_segment_other()} as channel
+      , gross_revenue
+      , avg_time_spent_per_visit
+      , goal_search_result_page
+      , goal_booking_funnel_access
+      , goal_uc1
+      , goal_uc2
+      , cos_new_visitors
+  from up_to_date
+
+
+  

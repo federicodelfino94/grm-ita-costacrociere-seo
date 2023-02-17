@@ -49,7 +49,11 @@ declare({
     schema: "seo_dashboard_01_temp",
     description: ""
 })
-
+declare({
+    name: "seo_adobeanalytics_other",
+    schema: "seo_dashboard_01_temp",
+    description: ""
+})
 declare({
     name: "seo_semrush_ranking_year_sm",
     schema: "seo_dashboard_01_temp",
