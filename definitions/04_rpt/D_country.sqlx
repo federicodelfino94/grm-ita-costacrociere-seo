@@ -34,10 +34,10 @@ with m as (
     'Switzerland' as Country,
     'Main' as CountryGroup
   UNION ALL
-  select 
+ /* select 
     'Argentina' as Country,
     'Secondary' as CountryGroup
-  UNION ALL
+  UNION ALL*/
   select 
     'Brazil' as Country,
     'Secondary' as CountryGroup
@@ -53,15 +53,15 @@ with m as (
   -- select 
   --   'Denmark' as Country,
   --   'Secondary' as CountryGroup
+  --UNION ALL
+ -- select 
+    --'Russia' as Country,
+    --'Secondary' as CountryGroup
+  --UNION ALL
+  --select 
+    --'N/A' as Country,
+    --'N/A' as CountryGroup
   UNION ALL
-  select 
-    'Russia' as Country,
-    'Secondary' as CountryGroup
-  UNION ALL
-  select 
-    'N/A' as Country,
-    'N/A' as CountryGroup
-    UNION ALL
   select 
     'USA' as Country,
     'Secondary' as CountryGroup

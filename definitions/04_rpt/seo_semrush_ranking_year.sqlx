@@ -64,7 +64,8 @@ select
   tmp.*
   , c.ID_Country
 from tmp
-LEFT JOIN ${ref("seo_dashboard_04_rpt", "D_country")} c
+JOIN ${ref("seo_dashboard_04_rpt", "D_country")} c
+--LEFT JOIN ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Market
 )
 

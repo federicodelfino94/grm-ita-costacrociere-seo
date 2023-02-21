@@ -14,5 +14,6 @@ select
 	, tmp.Sessions
 	, c.ID_Country
 from ${ref("seo_dashboard_02_raw", "seo_forecasting")} tmp
-left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+join ${ref("seo_dashboard_04_rpt", "D_country")} c
+--left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Country

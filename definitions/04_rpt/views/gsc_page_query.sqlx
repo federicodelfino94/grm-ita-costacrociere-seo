@@ -12,7 +12,7 @@ select
   , page
   , query
   , Brand_Generic_SuperGeneric
-  -- ,  Country
+  --,  Country
   , ID_Country
   , impressions
   , clicks

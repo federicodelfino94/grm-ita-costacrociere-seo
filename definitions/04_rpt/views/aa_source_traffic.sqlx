@@ -25,3 +25,10 @@ group by
 , ID_Traffic_Type
 , ID_Country
 , flag_magazine
+order by 
+  year_month
+  , ID_Country
+  , ID_Traffic_Type
+  , flag_magazine
+
+

@@ -24,6 +24,7 @@ with tmp as (
 		WHEN upper(trim(Market)) = 'UK' then 'UK'
 		WHEN upper(trim(Market)) = 'SE' then 'Sweden'
 		WHEN upper(trim(Market)) = 'DK' then 'Denmark'
+		WHEN upper(trim(Market)) = 'US' then 'USA'
 		ELSE 'N/A'
 	END as Country
 	, CASE 
@@ -55,6 +56,12 @@ with tmp as (
     ) as rn
   from tmp
 )
-select * except(rn, date_str)
-from up_to_date
+select tmp.*
+except(rn, date_str)
+from up_to_date as tmp
+join ${ref("seo_dashboard_04_rpt", "D_country")} c
+--left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+on c.Country = tmp.country
 where rn = 1
+order by 
+Country

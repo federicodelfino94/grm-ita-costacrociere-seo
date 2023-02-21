@@ -32,6 +32,7 @@ with tmp as (
         -- when gawebpropertyname = 'www.costacruise.com' then 'Denmark'
         when gawebpropertyname = 'www.costacruzeiros.com' then 'Brazil'
         when gawebpropertyname = 'www.costacruises.ru' then 'Russia'
+        when gawebpropertyname = 'www.costacruises.com' then 'USA'
         else 'N/A'
       end as Country
     --,galandingpagepath
@@ -60,7 +61,8 @@ select
   , c.ID_Country
   , t.ID_Traffic_Type
 from tmp 
-left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+join ${ref("seo_dashboard_04_rpt", "D_country")} c
+--left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Country
 left join ${ref("seo_dashboard_04_rpt", "D_traffic")} t
 on t.Traffic_Type = tmp.gachannelgrouping

@@ -64,7 +64,8 @@ select
   tmp.*
   , c.ID_Country
 from tmp 
-left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+join ${ref("seo_dashboard_04_rpt", "D_country")} c
+--left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Country
 
 
