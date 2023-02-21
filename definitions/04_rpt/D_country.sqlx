@@ -34,10 +34,10 @@ with m as (
     'Switzerland' as Country,
     'Main' as CountryGroup
   UNION ALL
- /* select 
+ select 
     'Argentina' as Country,
     'Secondary' as CountryGroup
-  UNION ALL*/
+  UNION ALL
   select 
     'Brazil' as Country,
     'Secondary' as CountryGroup
