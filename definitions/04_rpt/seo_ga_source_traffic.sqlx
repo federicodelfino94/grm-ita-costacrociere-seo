@@ -32,7 +32,7 @@ with tmp as (
         -- when gawebpropertyname = 'www.costacruise.com' then 'Denmark'
         when gawebpropertyname = 'www.costacruzeiros.com' then 'Brazil'
         when gawebpropertyname = 'www.costacruises.ru' then 'Russia'
-        when gawebpropertyname = 'www.costacruises.com' then 'USA'
+        when gawebpropertyname = 'www.costacruise.com' then 'USA'
         else 'N/A'
       end as Country
     --,galandingpagepath
