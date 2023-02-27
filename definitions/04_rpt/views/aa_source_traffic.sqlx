@@ -7,8 +7,9 @@ config {
   }
 }
 
-select
-  year_month
+select 
+  b.week_start as day
+  , year_month
   , ID_Traffic_Type
   , ID_Country
   , flag_magazine
@@ -18,15 +19,19 @@ select
   , sum(bounces) as bounces
   , sum(unique_visitors) as unique_visitors
   , sum(new_visitors) as new_visitors
-from ${ref("seo_dashboard_04_rpt", "seo_aa_source_traffic")}
+from ${ref("seo_dashboard_04_rpt", "seo_aa_source_traffic")} a
+join ${ref("seo_dashboard_04_rpt", "D_calendar_daily")} b 
+on b.date = a.day 
 where Country not in ('Sweden', 'Denmark')
 group by 
-  year_month
+b.week_start
+, year_month
 , ID_Traffic_Type
 , ID_Country
 , flag_magazine
 order by 
-  year_month
+b.week_start
+  , year_month
   , ID_Country
   , ID_Traffic_Type
   , flag_magazine

@@ -7,22 +7,27 @@ config {
 with t as(
 SELECT *
 , case
-  when month_nr = 12 then year + 1 
+  when extract(month from month_dt) = 12 then year + 1 
   else year 
   end as fiscal_year 
-, case when  month_nr  in (12, 1, 2) then 'Q1'
-  when  month_nr in (3,4,5) then 'Q2' 
-  when  month_nr in (6,7,8) then 'Q3' 
+, case when  extract(month from month_dt)  in (12, 1, 2) then 'Q1'
+  when extract(month from month_dt) in (3,4,5) then 'Q2' 
+  when extract(month from month_dt) in (6,7,8) then 'Q3' 
   else 'Q4' 
   end as fiscal_quarter  
-  , case when month_nr = 12 then 1 else month_nr +1 end as month_order
+  , case 
+  when extract(month from month_dt) = 12 then 1
+  else extract(month from month_dt) +1 
+  end as month_order
+  , format_date('%B', month_dt) as month_aud
 from ${resolve("seo_dashboard_utils", "vw_calendar_saturday_friday")}
 where date >= '2018-12-01' and date <= (select MAX(gadate) 
 from ${resolve("seo_dashboard_04_rpt", "seo_ga_source_traffic")})
 )
 
 
-select * from t
+select *
+from t
 
 --distinct date_trunc(date, month), fiscal_year, fiscal_quarter, month_name, week_start, month_dt from t
 --where fiscal_year = 2022
