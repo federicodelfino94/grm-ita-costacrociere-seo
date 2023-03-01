@@ -19,7 +19,8 @@ SELECT *
   when extract(month from month_dt) = 12 then 1
   else extract(month from month_dt) +1 
   end as month_order
-  , format_date('%B', month_dt) as month_aud
+ , format_date('%B', month_dt) as month_aud
+ , extract(year from month_dt) as year_aud
 from ${resolve("seo_dashboard_utils", "vw_calendar_saturday_friday")}
 where date >= '2018-12-01' and date <= (select MAX(gadate) 
 from ${resolve("seo_dashboard_04_rpt", "seo_ga_source_traffic")})

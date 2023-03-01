@@ -20,8 +20,7 @@ with tmp as (
       , entry_page_url
       , ${gsc_adobe_segment_channel()} as channel
       , ${gsc_adobe_segment_country()} as country
-      ,
-      case 
+      ,case 
         when entry_page_url like '%/costa-club/magazine/%' 
         then 'Magazine'
         else 'Ecommerce'

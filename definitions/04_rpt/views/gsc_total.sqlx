@@ -8,12 +8,17 @@ config {
 }
 
 select 
-  year_month
+day
+  --b.date as day
+year_month
   -- , Country
   , ID_Country
   , impressions
   , clicks
   , position
-from ${ref("seo_dashboard_04_rpt", "seo_gsc_total")}
+from ${ref("seo_dashboard_04_rpt", "seo_gsc_total")} a
+--join ${ref("seo_dashboard_04_rpt", "D_calendar_daily")} b 
+--on b.date = a.day
 where 1=1
 and Country not in ('Sweden', 'Denmark')
+order by ID_Country, day

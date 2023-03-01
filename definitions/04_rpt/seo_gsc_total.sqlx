@@ -16,19 +16,17 @@ config {
 
 with tmp as (
   select 
-    b.week_start as day
-    , b.month_dt as year_month
+   day 
+   , day as year_month
     , lower(site) as site
     , ${gsc_country_attribution()} as Country
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position
-  from ${ref("seo_dashboard_01_temp", "seo_gsc_total")} a
-  join  ${ref("seo_dashboard_04_rpt", "D_calendar_daily")} b 
-  on a.day= b.date
+  from ${ref("seo_dashboard_01_temp", "seo_gsc_total")}
   group by 
-    b.week_start
-    , b.month_dt
+  day
+    , year_month
     , lower(site)
     , Country
 )
