@@ -16,14 +16,14 @@ config {
 
 with tmp as (
   select 
-   day 
+  date_trunc(day, month) as day 
    , date_trunc(day, month) as year_month
     , lower(site) as site
     , ${gsc_country_attribution()} as Country
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position
-  from ${ref("seo_dashboard_01_temp", "seo_gsc_total")}
+  from ${ref("seo_dashboard_02_raw", "seo_gsc_total")}
   group by 
   day
     , year_month

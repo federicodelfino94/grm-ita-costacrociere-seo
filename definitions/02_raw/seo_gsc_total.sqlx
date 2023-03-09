@@ -1,0 +1,34 @@
+config {
+  type: "incremental",
+  name: "seo_gsc_total",
+  schema: "seo_dashboard_02_raw",
+  uniqueKey: ["day", "site"],
+  assertions: {
+    uniqueKey: ["day", "site"]
+  },
+  bigquery: {
+    partitionBy: "DATE_TRUNC(day, MONTH)",
+    clusterBy: ["site"]
+  },
+  tags:["GSC"]
+}
+
+with tmp as (
+  select
+    *
+    , row_number() over (
+        partition by day
+        , site
+        order by dt_created desc
+    ) rn
+  from ${ref("seo_dashboard_01_temp", "seo_gsc_total")}
+  QUALIFY rn = 1 
+)
+
+select lower(site) as site
+, clicks
+, impressions
+, position
+, day
+--except(rn, dt_created, dt_updated, dt_filename)
+from tmp
