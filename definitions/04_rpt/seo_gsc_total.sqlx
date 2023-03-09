@@ -8,7 +8,7 @@ config {
     uniqueKey: ["day", "site"]  
   },
   bigquery: {
-    partitionBy: "DATE_TRUNC(year_month, MONTH)",
+    partitionBy: "DATE_TRUNC(day, MONTH)",
     clusterBy: ["site"]
   },
   tags:["GSC"]
@@ -17,7 +17,7 @@ config {
 with tmp as (
   select 
    day 
-   , day as year_month
+   , date_trunc(day, month) as year_month
     , lower(site) as site
     , ${gsc_country_attribution()} as Country
     , sum(impressions) as impressions
