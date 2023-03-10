@@ -35,7 +35,8 @@ config {
 
 with tmp as (
   select
-    cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month 
+  date_trunc(day, month) as year_month
+    --cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month 
     , lower(site) as site
     , lower(page) as page
     , lower(trim(SUBSTRING(query, 0, 200))) as query
@@ -44,7 +45,7 @@ with tmp as (
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position
-  from ${ref("seo_dashboard_01_temp", "seo_gsc_page_query")}
+  from ${ref("seo_dashboard_01_temp", "seo_gsc_page_query_daily")}
   -- ${ when(
   --     incremental(),
   --     `WHERE dt_created >= ts 
@@ -53,13 +54,17 @@ with tmp as (
   --   )
   -- }
   group by 
-    cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) 
+  year_month
+    --cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) 
     , lower(site)
     , lower(page)
     , lower(trim(SUBSTRING(query, 0, 200)))
     , Country
     , Brand_Generic_SuperGeneric
 )
+, 
+
+t_final as (
 select 
   tmp.*
   , c.ID_Country
@@ -67,7 +72,10 @@ from tmp
 join ${ref("seo_dashboard_04_rpt", "D_country")} c
 ---left join ${ref("seo_dashboard_04_rpt", "D_country")} c
 on c.Country = tmp.Country
+)
 
+select *
+from t_final
 
 -- post_operations {
 --   UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
