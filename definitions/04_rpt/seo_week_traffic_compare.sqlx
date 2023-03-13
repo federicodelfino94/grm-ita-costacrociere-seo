@@ -1,0 +1,164 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_04_rpt",
+  name: "seo_week_traffic_compare"
+}
+
+with t as (
+  select distinct week_id
+  , week_start
+  , week_end
+  , week_nr
+  from ${ref("seo_dashboard_04_rpt", "D_calendar_daily")}
+)
+, t_cal_f as (
+  select week_id
+  , week_nr
+  , week_start
+  , week_end
+  , LAG(week_id) OVER (ORDER BY week_id ASC) AS week_id_prev 
+  , LAG(week_start) OVER (ORDER BY week_id ASC) AS week_start_prev 
+  , LAG(week_end) OVER (ORDER BY week_id ASC) AS week_end_prev 
+  , LAG(week_id, 2) OVER (ORDER BY week_id ASC) AS week_id_prev2 
+  , LAG(week_start, 2) OVER (ORDER BY week_id ASC) AS week_start_prev2
+  , LAG(week_end, 2) OVER (ORDER BY week_id ASC) AS week_end_prev2
+  from t
+)
+, t_ga_curr_week as (
+select week_id
+  ,week_nr
+--, ID_Country
+, Country
+, ID_Traffic_Type
+, gachannelgrouping 
+, gawebpropertyname
+, flag_Magazine
+, sum(gapageviews) as gapageviews
+, sum(gasessions) as gasessions
+, sum(gatransactions) as gatransactions
+, sum(gausers) as gausers
+from ${ref("seo_dashboard_04_rpt", "seo_ga_source_traffic")} a
+join  t_cal_f as t 
+  on a.gadate between t.week_start and t.week_end
+group by week_id
+  ,week_nr
+  --, ID_Country
+  , Country
+  , ID_Traffic_Type
+  , gachannelgrouping 
+  , gawebpropertyname
+  , flag_Magazine
+)
+, t_ga_prev_week as (
+select week_id
+--, ID_Country
+, Country
+, ID_Traffic_Type
+, gachannelgrouping 
+, gawebpropertyname
+, flag_Magazine
+, sum(gapageviews) as gapageviews
+, sum(gasessions) as gasessions
+, sum(gatransactions) as gatransactions
+, sum(gausers) as gausers
+from ${ref("seo_dashboard_04_rpt", "seo_ga_source_traffic")} a
+join t_cal_f as t 
+  on a.gadate between t.week_start_prev and t.week_end_prev
+group by week_id
+--, ID_Country
+, Country
+, ID_Traffic_Type
+, gachannelgrouping 
+, gawebpropertyname
+, flag_Magazine
+)
+, t_ga_prev_week2 as (
+select week_id
+--,  ID_Country
+, Country
+, ID_Traffic_Type
+, gachannelgrouping 
+, gawebpropertyname
+, flag_Magazine
+, sum(gapageviews) as gapageviews
+, sum(gasessions) as gasessions
+, sum(gatransactions) as gatransactions
+, sum(gausers) as gausers
+from ${ref("seo_dashboard_04_rpt", "seo_ga_source_traffic")} a
+join t_cal_f as t 
+  on a.gadate between t.week_start_prev2 and t.week_end_prev2
+group by week_id
+--, ID_Country
+, Country
+, ID_Traffic_Type
+, gachannelgrouping 
+, gawebpropertyname
+, flag_Magazine
+)
+, t_final as (
+select a.week_id
+, a.week_nr
+, country.ID_Country
+, a.Country
+, a.ID_Traffic_Type
+, a.gachannelgrouping 
+, a.gawebpropertyname
+, a.flag_Magazine
+, a.gapageviews
+, a.gasessions
+, a.gatransactions
+, a.gausers
+, b.gapageviews as gapageviews_prev
+, b.gasessions as gasessions_prev
+, b.gatransactions as gatransactions_prev
+, b.gausers as gausers_prev
+, c.gapageviews as gapageviews_prev2
+, c.gasessions as gasessions_prev2
+, c.gatransactions as gatransactions_prev2
+, c.gausers as gausers_prev2
+from t_ga_curr_week as a
+left join ${ref("seo_dashboard_04_rpt", "D_country")} country 
+  on a.Country = country.Country
+left join t_ga_prev_week as b
+  on a.week_id = b.week_id
+--  and a.ID_Country = b.ID_Country
+  and a.Country = b.Country
+  and a.ID_Traffic_Type = b.ID_Traffic_Type
+  and a.gachannelgrouping  = b.gachannelgrouping
+  and a.gawebpropertyname = b.gawebpropertyname
+  and a.flag_Magazine = b.flag_Magazine
+left join t_ga_prev_week2 as c
+  on a.week_id = c.week_id
+--  and a.ID_Country = c.ID_Country
+  and a.Country = c.Country
+  and a.ID_Traffic_Type = c.ID_Traffic_Type
+  and a.gachannelgrouping  = c.gachannelgrouping
+  and a.gawebpropertyname = c.gawebpropertyname
+  and a.flag_Magazine = c.flag_Magazine
+)
+select a.*
+, b.fiscal_year as fiscal_year_bech_1
+, b.gapageviews as gapageviews_bench_1
+, b.gasessions as gasessions_bench_1
+, b.gatransactions as gatransactions_bench_1
+, b.gausers as gausers_1
+, c.fiscal_year as fiscal_year_bech_2
+, c.gapageviews as gapageviews_bench_2
+, c.gasessions as gasessions_bench_2
+, c.gatransactions as gatransactions_bench_2
+, c.gausers as gausers_2
+from t_final a
+left join ${ref("seo_dashboard_04_rpt", "seo_benchmark_traffic_1")} b
+  on a.week_nr = b.week_nr
+  and a.Country = b.Country
+  and a.ID_Traffic_Type = b.ID_Traffic_Type
+  and a.gachannelgrouping  = b.gachannelgrouping
+  and a.gawebpropertyname = b.gawebpropertyname
+  and a.flag_Magazine = b.flag_Magazine
+left join ${ref("seo_dashboard_04_rpt", "seo_benchmark_traffic_2")} c
+  on a.week_nr = c.week_nr
+  and a.Country = c.Country
+  and a.ID_Traffic_Type = c.ID_Traffic_Type
+  and a.gachannelgrouping  = c.gachannelgrouping
+  and a.gawebpropertyname = c.gawebpropertyname
+  and a.flag_Magazine = c.flag_Magazine
