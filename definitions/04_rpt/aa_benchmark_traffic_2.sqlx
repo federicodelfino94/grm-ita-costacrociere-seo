@@ -1,0 +1,42 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_04_rpt",
+  name: "aa_benchmark_traffic_2"
+}
+
+
+with t as (
+  select distinct week_id
+  , week_nr
+  , week_start
+  , week_end
+  , fiscal_year
+   from ${ref("seo_dashboard_04_rpt", "D_calendar_daily")}
+)
+select 
+    t.week_id
+  , t.week_nr
+  , t.fiscal_year
+  , x.ID_Country
+  , a.Country
+  , a.ID_Traffic_Type
+  , a.flag_magazine
+  , sum(a.visits) as visits
+  , sum(a.orders) as orders
+  , sum(a.page_views) as page_views
+  , sum(a.bounces) as bounces
+  , sum(a.unique_visitors) as unique_visitors
+  , sum(a.new_visitors) as new_visitors 
+from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
+left join ${ref("seo_dashboard_04_rpt", "D_country")} as x 
+	on a.Country = x.Country
+join t as t 
+  on a.day between t.week_start and t.week_end
+where t.fiscal_year = 2022
+group by t.week_id
+  , t.week_nr
+  , t.fiscal_year
+  , x.ID_Country
+  , a.Country
+  , a.ID_Traffic_Type 
+  , a.flag_magazine

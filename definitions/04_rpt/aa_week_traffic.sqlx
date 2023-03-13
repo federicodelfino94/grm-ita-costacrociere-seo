@@ -1,0 +1,151 @@
+config {
+  type: "table",
+  schema: "seo_dashboard_04_rpt",
+  name: "aa_week_traffic"
+}
+
+with t as (
+  select distinct week_id
+  , week_start
+  , week_end
+  , week_nr
+  from ${ref("seo_dashboard_04_rpt", "D_calendar_daily")}
+)
+, t_cal_f as (
+  select week_id
+  , week_nr
+  , week_start
+  , week_end
+  , LAG(week_id) OVER (ORDER BY week_id ASC) AS week_id_prev 
+  , LAG(week_start) OVER (ORDER BY week_id ASC) AS week_start_prev 
+  , LAG(week_end) OVER (ORDER BY week_id ASC) AS week_end_prev 
+  , LAG(week_id, 2) OVER (ORDER BY week_id ASC) AS week_id_prev2 
+  , LAG(week_start, 2) OVER (ORDER BY week_id ASC) AS week_start_prev2
+  , LAG(week_end, 2) OVER (ORDER BY week_id ASC) AS week_end_prev2
+  from t
+)
+, t_aa_curr_week as (
+	select week_id
+	, week_nr
+	, Country
+	, ID_Traffic_Type
+	, flag_magazine
+	, sum(visits) as visits
+	, sum(orders) as orders
+	, sum(page_views) as page_views
+	, sum(bounces) as bounces
+	, sum(unique_visitors) as unique_visitors
+	, sum(new_visitors) as new_visitors 
+from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
+join  t_cal_f as t 
+	on a.day between t.week_start and t.week_end
+ group by week_id
+  , week_nr
+  , Country
+  , ID_Traffic_Type
+  , flag_Magazine
+)
+, t_aa_prev_week as (
+	select week_id
+	, Country
+	, ID_Traffic_Type
+	, flag_magazine
+	, sum(visits) as visits
+	, sum(orders) as orders
+	, sum(page_views) as page_views
+	, sum(bounces) as bounces
+	, sum(unique_visitors) as unique_visitors
+	, sum(new_visitors) as new_visitors 
+from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
+join t_cal_f as t 
+	on a.day between t.week_start_prev and t.week_end_prev
+ group by week_id
+	, Country
+	, ID_Traffic_Type
+	, flag_Magazine
+)
+, t_aa_prev_week2 as (
+	select week_id
+	, Country
+	, ID_Traffic_Type
+	, flag_Magazine
+	, sum(visits) as visits
+	, sum(orders) as orders
+	, sum(page_views) as page_views
+	, sum(bounces) as bounces
+	, sum(unique_visitors) as unique_visitors
+	, sum(new_visitors) as new_visitors 
+from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
+join t_cal_f as t 
+on a.day between t.week_start_prev2 and t.week_end_prev2
+	 group by week_id
+	, Country
+	, ID_Traffic_Type
+	, flag_Magazine
+)
+, t_final as (
+	select a.week_id
+	, a.week_nr
+	, country.ID_Country
+	, a.Country
+	, a.ID_Traffic_Type	
+	, a.flag_Magazine
+	, a.visits
+	, a.orders
+	, a.page_views
+	, a.bounces
+	, a.unique_visitors
+	, a.new_visitors 
+	, b.visits as visits_prev
+	, b.orders as orders_prev
+	, b.page_views as page_views_prev
+	, b.bounces as bounces_prev
+	, b.unique_visitors as unique_visitors_prev
+	, b.new_visitors as new_visitors_prev 
+	, c.visits as visits_prev2
+	, c.orders as orders_prev2
+	, c.page_views as page_views_prev2
+	, c.bounces as bounces_prev2
+	, c.unique_visitors as unique_visitors_prev2
+	, c.new_visitors as new_visitors_prev2
+from t_aa_curr_week as a
+left join ${ref("seo_dashboard_04_rpt", "D_country")} country 
+on a.Country = country.Country
+left join t_aa_prev_week as b
+  on a.week_id = b.week_id
+  and a.Country = b.Country
+  and a.ID_Traffic_Type = b.ID_Traffic_Type
+  and a.flag_Magazine = b.flag_Magazine
+left join t_aa_prev_week2 as c
+on a.week_id = c.week_id
+  and a.Country = c.Country
+  and a.ID_Traffic_Type = c.ID_Traffic_Type
+  and a.flag_Magazine = c.flag_Magazine
+)
+
+select a.*
+	, b.fiscal_year as fiscal_year_bech_1
+	, b.visits as visits_bench_1
+	, b.orders as orders_bench_1
+	, b.page_views as page_views_bench_1
+	, b.bounces as bounces_bench_1
+	, b.unique_visitors as unique_visitors_bench_1
+	, b.new_visitors as new_visitor_bench_1
+	, c.fiscal_year as fiscal_year_bech_2
+	, c.visits as visits_bench_2
+	, c.orders as orders_bench_2
+	, c.page_views as page_views_bench_2
+	, c.bounces as bounces_bench_2
+	, c.unique_visitors as unique_visitors_bench_2
+	, c.new_visitors as new_visitor_bench_2
+from t_final a
+left join ${ref("seo_dashboard_04_rpt", "aa_benchmark_traffic_1")} b
+  on a.week_nr = b.week_nr
+  and a.Country = b.Country
+  and a.ID_Traffic_Type = b.ID_Traffic_Type
+  and a.flag_Magazine = b.flag_Magazine
+left join ${ref("seo_dashboard_04_rpt", "aa_benchmark_traffic_2")} c
+  on a.week_nr = c.week_nr
+  and a.Country = c.Country
+  and a.ID_Traffic_Type = c.ID_Traffic_Type
+  and a.flag_Magazine = c.flag_Magazine
