@@ -27,7 +27,7 @@ with t as (
 , t_aa_curr_week as (
 	select week_id
 	, week_nr
-	, Country
+	, ID_Country
 	, ID_Traffic_Type
 	, flag_magazine
 	, sum(visits) as visits
@@ -41,13 +41,13 @@ join  t_cal_f as t
 	on a.day between t.week_start and t.week_end
  group by week_id
   , week_nr
-  , Country
+  , ID_Country
   , ID_Traffic_Type
   , flag_Magazine
 )
 , t_aa_prev_week as (
 	select week_id
-	, Country
+	, ID_Country
 	, ID_Traffic_Type
 	, flag_magazine
 	, sum(visits) as visits
@@ -60,13 +60,13 @@ from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
 join t_cal_f as t 
 	on a.day between t.week_start_prev and t.week_end_prev
  group by week_id
-	, Country
+	, ID_Country
 	, ID_Traffic_Type
 	, flag_Magazine
 )
 , t_aa_prev_week2 as (
 	select week_id
-	, Country
+	, ID_Country
 	, ID_Traffic_Type
 	, flag_Magazine
 	, sum(visits) as visits
@@ -77,9 +77,9 @@ join t_cal_f as t
 	, sum(new_visitors) as new_visitors 
 from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
 join t_cal_f as t 
-on a.day between t.week_start_prev2 and t.week_end_prev2
-	 group by week_id
-	, Country
+	on a.day between t.week_start_prev2 and t.week_end_prev2
+	group by week_id
+	, ID_Country
 	, ID_Traffic_Type
 	, flag_Magazine
 )
@@ -87,7 +87,6 @@ on a.day between t.week_start_prev2 and t.week_end_prev2
 	select a.week_id
 	, a.week_nr
 	, country.ID_Country
-	, a.Country
 	, a.ID_Traffic_Type	
 	, a.flag_Magazine
 	, a.visits
@@ -110,15 +109,15 @@ on a.day between t.week_start_prev2 and t.week_end_prev2
 	, c.new_visitors as new_visitors_prev2
 from t_aa_curr_week as a
 left join ${ref("seo_dashboard_04_rpt", "D_country")} country 
-on a.Country = country.Country
+on a.ID_Country = country.ID_Country
 left join t_aa_prev_week as b
   on a.week_id = b.week_id
-  and a.Country = b.Country
+  and a.ID_Country = b.ID_Country
   and a.ID_Traffic_Type = b.ID_Traffic_Type
   and a.flag_Magazine = b.flag_Magazine
 left join t_aa_prev_week2 as c
 on a.week_id = c.week_id
-  and a.Country = c.Country
+  and a.ID_Country = c.ID_Country
   and a.ID_Traffic_Type = c.ID_Traffic_Type
   and a.flag_Magazine = c.flag_Magazine
 )
@@ -141,11 +140,11 @@ select a.*
 from t_final a
 left join ${ref("seo_dashboard_04_rpt", "aa_benchmark_traffic_1")} b
   on a.week_nr = b.week_nr
-  and a.Country = b.Country
+  and a.ID_Country = b.ID_Country
   and a.ID_Traffic_Type = b.ID_Traffic_Type
   and a.flag_Magazine = b.flag_Magazine
 left join ${ref("seo_dashboard_04_rpt", "aa_benchmark_traffic_2")} c
   on a.week_nr = c.week_nr
-  and a.Country = c.Country
+  and a.ID_Country = c.ID_Country
   and a.ID_Traffic_Type = c.ID_Traffic_Type
   and a.flag_Magazine = c.flag_Magazine
