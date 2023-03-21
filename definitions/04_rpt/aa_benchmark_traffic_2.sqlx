@@ -20,7 +20,7 @@ select
   , x.Country
   , a.ID_Country
   , a.ID_Traffic_Type
-  , a.flag_magazine
+  , a.flag_Magazine
   , sum(a.visits) as visits
   , sum(a.orders) as orders
   , sum(a.page_views) as page_views
@@ -39,4 +39,4 @@ group by t.week_id
   , x.Country
   , a.ID_Country
   , a.ID_Traffic_Type 
-  , a.flag_magazine
+  , a.flag_Magazine

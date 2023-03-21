@@ -29,7 +29,7 @@ with t as (
 	, week_nr
 	, ID_Country
 	, ID_Traffic_Type
-	, flag_magazine
+	, flag_Magazine
 	, sum(visits) as visits
 	, sum(orders) as orders
 	, sum(page_views) as page_views
@@ -40,16 +40,16 @@ from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
 join  t_cal_f as t 
 	on a.day between t.week_start and t.week_end
  group by week_id
-  , week_nr
-  , ID_Country
-  , ID_Traffic_Type
-  , flag_Magazine
+	, week_nr
+	, ID_Country
+	, ID_Traffic_Type
+	, flag_Magazine
 )
 , t_aa_prev_week as (
 	select week_id
 	, ID_Country
 	, ID_Traffic_Type
-	, flag_magazine
+	, flag_Magazine
 	, sum(visits) as visits
 	, sum(orders) as orders
 	, sum(page_views) as page_views
