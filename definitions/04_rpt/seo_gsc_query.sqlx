@@ -46,7 +46,7 @@ with tmp as (
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position
-  from ${ref("seo_dashboard_01_temp", "seo_gsc_query_daily")}
+  from ${ref("seo_dashboard_02_raw", "seo_gsc_query_daily")}
   -- ${ when(
   --     incremental(),
   --     `WHERE dt_created >= date(ts) 
