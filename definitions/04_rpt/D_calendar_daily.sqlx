@@ -4,7 +4,7 @@ config {
   name: "D_calendar_daily"
 }
 
-with t as(
+with t as (
 SELECT *
 , case
   when extract(month from month_dt) = 12 then year + 1 
@@ -22,8 +22,9 @@ SELECT *
  , format_date('%B', month_dt) as month_aud
  , extract(year from month_dt) as year_aud
 from ${resolve("seo_dashboard_utils", "vw_calendar_saturday_friday")}
-where date >= '2018-12-01' and date <= (select MAX(gadate) 
-from ${resolve("seo_dashboard_04_rpt", "seo_ga_source_traffic")})
+where date >= '2018-12-01' and date <= current_date()
+-- (select MAX(gadate) 
+--from ${resolve("seo_dashboard_04_rpt", "seo_ga_source_traffic")})
 )
 
 
