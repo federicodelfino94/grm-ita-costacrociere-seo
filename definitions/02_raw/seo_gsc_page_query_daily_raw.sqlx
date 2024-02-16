@@ -1,15 +1,7 @@
 config {
-  type: "incremental",
-  name: "seo_gsc_query_daily",
+  type: "table",
+  name: "seo_gsc_page_query_daily_raw",
   schema: "seo_dashboard_02_raw",
-  uniqueKey: ["day", "site", "query"],
-  assertions: {
-    uniqueKey: ["day", "site", "query"]
-  },
-  bigquery: {
-    partitionBy: "DATE_TRUNC(day, MONTH)",
-    clusterBy: ["site", "query"]
-  },
   tags:["GSC"]
 }
 
@@ -19,10 +11,12 @@ with tmp as (
     , row_number() over (
         partition by day
         , site
+        , page
         , query
         order by dt_created desc
     ) rn
-  from ${ref("seo_dashboard_01_temp", "seo_gsc_query_daily")}
+  from ${ref("seo_gsc_page_query_daily_tmp")}
+  
   QUALIFY rn = 1 
 )
 

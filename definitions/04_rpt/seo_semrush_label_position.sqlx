@@ -18,7 +18,7 @@ Year
 , Position_nr
 , month
 , Position_Label
-FROM ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
+FROM ${ref("seo_semrush_ranking_year")}
 UNPIVOT(Position_nr for month in (January, 
 February,
 March,
@@ -46,7 +46,7 @@ Year
 , Occurency
 , month
 , Position_Label
-FROM ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking_year")}
+FROM ${ref("seo_semrush_ranking_year")}
 UNPIVOT(Occurency for month in (Offsite_January, 
 Offsite_February,
 Offsite_March,
@@ -196,7 +196,7 @@ select Year,
   1 counter,
   join_key
    from t_final2 a
-LEFT JOIN ${ref("seo_dashboard_utils", "seo_cfg_position_label")} b
+LEFT JOIN ${ref("seo_cfg_position_label")} b
 on a.Position_nr between b.start_position and b.end_position
 
 

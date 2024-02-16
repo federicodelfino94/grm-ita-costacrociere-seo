@@ -56,7 +56,7 @@ with tmp as (
     , Visibility_Index
     , SAFE_CAST(Avg_Search_Volume_Monthly AS INT) as Avg_Search_Volume_Monthly
     , Occurences
-	from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking_year_sm")}
+	from ${ref("seo_semrush_ranking_year_sm")}
 )
 , tmp2 as (
 
@@ -64,8 +64,7 @@ select
   tmp.*
   , c.ID_Country
 from tmp
-JOIN ${ref("seo_dashboard_04_rpt", "D_country")} c
---LEFT JOIN ${ref("seo_dashboard_04_rpt", "D_country")} c
+JOIN ${ref("D_country")} c
 on c.Country = tmp.Market
 )
 

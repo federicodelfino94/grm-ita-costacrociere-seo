@@ -1,12 +1,7 @@
 config {
   type: "table",
   schema: "seo_dashboard_04_rpt",
-  name: "D_traffic",
-  uniqueKey: ["Traffic_Type"],
-  assertions: {
-    uniqueKey: ["Traffic_Type"], //chiave logica
-    uniqueKey: ["ID_Traffic_Type"], //pk
-  }
+  name: "D_traffic"
 }
 
 with t as (

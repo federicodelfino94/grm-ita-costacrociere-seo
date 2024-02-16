@@ -1,0 +1,75 @@
+config {
+  type: "table",
+  name: "seo_adobeanalytics_raw",
+  schema: "seo_dashboard_02_raw",
+  tags:["ADOBE"]
+}
+
+with up_to_date as (
+  select
+    * 
+    , row_number() over (
+        partition by 
+          company_id
+        , report_suite_id
+        , segment_name
+        , day
+        , item_id
+        , entry_page_url
+        order by dt_created desc
+    ) rn
+  from ${ref("seo_adobeanalytics_temp")}
+  QUALIFY rn = 1 
+)
+
+  select 
+      company_id
+      , report_suite_id
+      , segment_name
+      , day
+      , item_id
+      , entry_page_url
+      , visits
+      , total_orders
+      , page_views
+      , bounces
+      , unique_visitors
+      , new_visitors
+      ,         case     
+            when upper(segment_name) like '%==%IT%' then 'Italy'
+            when upper(segment_name) like '%==%FR%' then 'France'
+            when upper(segment_name) like '%==%CH%' then 'Switzerland'
+            when upper(segment_name) like '%==%UK%' then 'UK'
+            when upper(segment_name) like '%==%ES%' then 'Spain'
+            when upper(segment_name) like '%==%AT%' then 'Austria'
+            when upper(segment_name) like '%==%DE%' then 'Germany'
+            when upper(segment_name) like '%==%AR%' then 'Argentina'
+            when upper(segment_name) like '%==%BR%' then 'Brazil'
+            when upper(segment_name) like '%==%RU%' then 'Russia'
+            when upper(segment_name) like '%==%SE%' then 'Sweden'
+            when upper(segment_name) like '%==%DK%' then 'Denmark'
+            when upper(segment_name) like '%==%BE%' then 'Belgium'
+            when upper(segment_name) like '%==%NL%' then 'Netherlands'
+            when upper(segment_name) like '%==%FI%' then 'Finland'
+            when upper(segment_name) like '%==%US%' then 'USA'
+            else 
+            'N/A' 
+        end as country
+      ,  case 
+            when lower(segment_name) like '%direct%' then 'Direct'
+            when lower(segment_name) like '%organic%' then 'Organic Search'
+            when lower(segment_name) like '%referral%' then 'Referral'
+        else 
+            'N/A' 
+        end as channel
+      , gross_revenue
+      , avg_time_spent_per_visit
+      , goal_search_result_page
+      , goal_booking_funnel_access
+      , goal_uc1
+      , goal_uc2
+      , cos_new_visitors
+  from up_to_date
+
+
+  

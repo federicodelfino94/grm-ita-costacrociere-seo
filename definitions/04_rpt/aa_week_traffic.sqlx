@@ -9,7 +9,7 @@ with t as (
   , week_start
   , week_end
   , week_nr
-  from ${ref("seo_dashboard_04_rpt", "D_calendar_daily")}
+  from ${ref("D_calendar_daily")}
 )
 , t_cal_f as (
   select week_id
@@ -36,7 +36,7 @@ with t as (
 	, sum(bounces) as bounces
 	, sum(unique_visitors) as unique_visitors
 	, sum(new_visitors) as new_visitors 
-from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
+from ${ref("aa_source_traffic")} a
 join  t_cal_f as t 
 	on a.day between t.week_start and t.week_end
  group by week_id
@@ -56,7 +56,7 @@ join  t_cal_f as t
 	, sum(bounces) as bounces
 	, sum(unique_visitors) as unique_visitors
 	, sum(new_visitors) as new_visitors 
-from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
+from ${ref("aa_source_traffic")} a
 join t_cal_f as t 
 	on a.day between t.week_start_prev and t.week_end_prev
  group by week_id
@@ -75,7 +75,7 @@ join t_cal_f as t
 	, sum(bounces) as bounces
 	, sum(unique_visitors) as unique_visitors
 	, sum(new_visitors) as new_visitors 
-from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
+from ${ref("aa_source_traffic")} a
 join t_cal_f as t 
 	on a.day between t.week_start_prev2 and t.week_end_prev2
 	group by week_id
@@ -108,7 +108,7 @@ join t_cal_f as t
 	, c.unique_visitors as unique_visitors_prev2
 	, c.new_visitors as new_visitors_prev2
 from t_aa_curr_week as a
-left join ${ref("seo_dashboard_04_rpt", "D_country")} country 
+left join ${ref("D_country")} country 
 on a.ID_Country = country.ID_Country
 left join t_aa_prev_week as b
   on a.week_id = b.week_id
@@ -138,12 +138,12 @@ select a.*
 	, c.unique_visitors as unique_visitors_bench_2
 	, c.new_visitors as new_visitor_bench_2
 from t_final a
-left join ${ref("seo_dashboard_04_rpt", "aa_benchmark_traffic_1")} b
+left join ${ref("aa_benchmark_traffic_1")} b
   on a.week_nr = b.week_nr
   and a.ID_Country = b.ID_Country
   and a.ID_Traffic_Type = b.ID_Traffic_Type
   and a.flag_Magazine = b.flag_Magazine
-left join ${ref("seo_dashboard_04_rpt", "aa_benchmark_traffic_2")} c
+left join ${ref("aa_benchmark_traffic_2")} c
   on a.week_nr = c.week_nr
   and a.ID_Country = c.ID_Country
   and a.ID_Traffic_Type = c.ID_Traffic_Type

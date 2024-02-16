@@ -10,27 +10,27 @@ declare({
     description: ""
 */
 declare({
-    name: "seo_gsc_page_query",
+    name: "seo_gsc_page_query_tmp",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
 declare({
-    name: "seo_gsc_page_query_daily",
+    name: "seo_gsc_page_query_daily_tmp",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
 declare({
-    name: "seo_gsc_query",
+    name: "seo_gsc_query_tmp",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
 declare({
-    name: "seo_gsc_query_daily",
+    name: "seo_gsc_query_daily_tmp",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
 declare({
-    name: "seo_gsc_total",
+    name: "seo_gsc_total_tmp",
     schema: "seo_dashboard_01_temp",
     description: ""
 })
@@ -40,17 +40,12 @@ declare({
     description: ""
 })
 declare({
+    name: "seo_adobeanalytics_temp",
+    schema: "seo_dashboard_01_temp",
+    description: ""
+})
+declare({
     name: "seo_forecasting",
-    schema: "seo_dashboard_01_temp",
-    description: ""
-})
-declare({
-    name: "seo_adobeanalytics",
-    schema: "seo_dashboard_01_temp",
-    description: ""
-})
-declare({
-    name: "seo_adobeanalytics_other",
     schema: "seo_dashboard_01_temp",
     description: ""
 })

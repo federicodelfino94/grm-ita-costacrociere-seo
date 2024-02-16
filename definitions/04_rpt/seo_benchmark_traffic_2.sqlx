@@ -12,6 +12,7 @@ with t as (
   , fiscal_year
   from ${ref("seo_dashboard_04_rpt", "D_calendar_daily")} 
 )
+
 select 
     t.week_id
   , t.week_nr

@@ -1,0 +1,23 @@
+config {
+  type: "table",
+  name: "seo_gsc_query_daily_raw",
+  schema: "seo_dashboard_02_raw",
+  tags:["GSC"]
+}
+
+with tmp as (
+  select
+    * 
+    , row_number() over (
+        partition by day
+        , site
+        , query
+        order by dt_created desc
+    ) rn
+  from ${ref("seo_gsc_query_daily_tmp")}
+  QUALIFY rn = 1 
+)
+
+select 
+* except(rn, dt_created, dt_updated, dt_filename)
+from tmp

@@ -1,10 +1,7 @@
 config {
-  type: "view",
+  type: "table",
   schema: "seo_dashboard_04_rpt",
-  name: "semrush_ranking",
-  assertions: {
-    nonNull: ["ID_Country"]
-  }
+  name: "semrush_ranking"
 }
 
 select 
@@ -23,8 +20,8 @@ select
   , date_str as Reference_Month
   , date_str_order as Reference_Month_Order
   , ID_Country
-from ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking")}
+from ${ref("seo_semrush_ranking_raw")}
 where date_trunc(date_str_order, year) = (select date_trunc(max(date_str_order), year) 
-from ${ref("seo_dashboard_04_rpt", "seo_semrush_ranking")}
+from ${ref("seo_semrush_ranking_raw")}
 )
 

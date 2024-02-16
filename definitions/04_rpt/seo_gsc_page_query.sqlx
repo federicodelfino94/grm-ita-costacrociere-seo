@@ -1,61 +1,63 @@
 config {
-  type: "incremental",
-  //type: "table",
+  type: "table",
   name: "seo_gsc_page_query",
   schema: "seo_dashboard_04_rpt",
-  //dependencies: ["data_flow_insertion_log"],
-  uniqueKey: ["year_month", "site", "page", "query"],
-  assertions: {
-    uniqueKey: ["year_month", "site", "page", "query"]
-  },
-  bigquery: {
-    partitionBy: "DATE_TRUNC(year_month, MONTH)",
-    clusterBy: ["site", "page", "query"]
-  },
   tags:["GSC"]
 }
 
--- pre_operations {
---   DECLARE ts DATETIME
---   ---
---   CREATE TEMP TABLE tmp_t (
---     dt_filename STRING,
---     file_upload_ts DATETIME
---   ) AS 
---     select dt_filename , file_upload_ts
---     from ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
---     where ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
---     and processed_flag = FALSE
---   ---
---   set ts = (
---     select ifnull(MIN(file_upload_ts), DATETIME_ADD(CURRENT_DATETIME(), INTERVAL 1 YEAR)) 
---     from tmp_t
---   )
--- }
 
 with tmp as (
   select
   date_trunc(day, month) as year_month
-    --cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) as year_month 
     , lower(site) as site
     , lower(page) as page
     , lower(trim(SUBSTRING(query, 0, 200))) as query
-    , ${gsc_brand_generic_supergeneric_attribution()} as Brand_Generic_SuperGeneric
-    , ${gsc_country_attribution()} as Country
+    ,       case 
+        when lower(query) like '%costa%' then 'Brand' 
+        when lower(query) like '%costacrociere%' then 'Brand' 
+        when lower(query) like '%costa crociere%' then 'Brand' 
+        when lower(query) like '%costakreuzfahrten%' then 'Brand' 
+        when lower(query) like '%costa kreuzfahrten%' then 'Brand' 
+        when lower(query) like '%costacroisieres%' then 'Brand' 
+        when lower(query) like '%costa croisieres%' then 'Brand' 
+        when lower(query) like '%costacruises%' then 'Brand' 
+        when lower(query) like '%costa cruises%' then 'Brand' 
+        when lower(query) like '%costacruceros%' then 'Brand' 
+        when lower(query) like '%costa cruceros%' then 'Brand' 
+        when lower(query) like '%costacruizeiros%' then 'Brand' 
+        when lower(query) like '%costa cruizeiros%' then 'Brand' 
+        when lower(query) like '%crocier%' then 'Generic'
+        when lower(query) like '%crucero%' then 'Generic'
+        when lower(query) like '%croisière%' then 'Generic'
+        when lower(query) like '%croisiere%' then 'Generic'
+        when lower(query) like '%kreuzfahrt%' then 'Generic'
+        when lower(query) like '%cruzeiro%' then 'Generic'
+        when lower(query) like '%cruise%' then 'Generic'
+        when lower(query) like '%круиз%' then 'Generic'
+        else 'Super Generic'
+      end as Brand_Generic_SuperGeneric
+    ,         case  
+            when site = 'https://www.costacrociere.it/' then 'Italy'
+            when site = 'https://www.costacroisieres.fr/' then 'France' 
+            when site = 'https://www.costakreuzfahrten.ch/' then 'Switzerland'
+            when site = 'https://www.costacruises.co.uk/' then 'UK'
+            when site = 'https://www.costacruceros.es/' then 'Spain'
+            when site = 'https://www.costacruises.se/' then 'Sweden'
+            when site = 'https://www.costakreuzfahrten.at/' then 'Austria'
+            when site = 'https://www.costakreuzfahrten.de/' then 'Germany'
+            when site = 'https://www.costacruceros.com/' then 'Argentina'
+            when site = 'https://www.costacruises.dk/' then 'Denmark'
+            when site = 'https://www.costacruzeiros.com/' then 'Brazil'
+            when site = 'https://www.costacruises.ru/' then 'Russia'
+            when site = 'https://www.costacruises.com/' then 'USA'
+            else 'N/A'
+        end as Country
     , sum(impressions) as impressions
     , sum(clicks) as clicks
     , avg(position) as position
-  from ${ref("seo_dashboard_01_temp", "seo_gsc_page_query_daily")}
-  -- ${ when(
-  --     incremental(),
-  --     `WHERE dt_created >= ts 
-  --      AND dt_filename in (select dt_filename from tmp_t)
-  --     `
-  --   )
-  -- }
+  from ${ref("seo_gsc_page_query_daily_raw")}
   group by 
   year_month
-    --cast(CONCAT(FORMAT_DATETIME("%Y-%m", day),'-01') as date) 
     , lower(site)
     , lower(page)
     , lower(trim(SUBSTRING(query, 0, 200)))
@@ -69,18 +71,9 @@ select
   tmp.*
   , c.ID_Country
 from tmp 
-join ${ref("seo_dashboard_04_rpt", "D_country")} c
----left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+join ${ref("D_country")} c
 on c.Country = tmp.Country
 )
 
 select *
 from t_final
-
--- post_operations {
---   UPDATE ${ref("seo_dashboard_utils", "data_flow_insertion_log")}
---   SET processed_flag = TRUE
---   where file_upload_ts >= ts
---   and ID_data_flow = 2 --data_flow_name = 'seo_gsc_page_query'
---   AND dt_filename in (select dt_filename from tmp_t)
--- }

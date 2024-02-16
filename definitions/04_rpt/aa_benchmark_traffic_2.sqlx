@@ -11,7 +11,7 @@ with t as (
   , week_start
   , week_end
   , fiscal_year
-   from ${ref("seo_dashboard_04_rpt", "D_calendar_daily")}
+   from ${ref("D_calendar_daily")}
 )
 select 
     t.week_id
@@ -27,8 +27,8 @@ select
   , sum(a.bounces) as bounces
   , sum(a.unique_visitors) as unique_visitors
   , sum(a.new_visitors) as new_visitors 
-from ${ref("seo_dashboard_04_rpt", "aa_source_traffic")} a
-left join ${ref("seo_dashboard_04_rpt", "D_country")} as x 
+from ${ref("aa_source_traffic")} a
+left join ${ref("D_country")} as x 
 	on a.ID_Country = x.ID_Country
 join t as t 
   on a.day between t.week_start and t.week_end

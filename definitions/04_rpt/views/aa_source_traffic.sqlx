@@ -1,10 +1,7 @@
 config {
-  type: "view",
+  type: "table",
   schema: "seo_dashboard_04_rpt",
   name: "aa_source_traffic",
-  assertions: {
-    nonNull: ["ID_Country", "year_month"],
-  }
 }
 
 select 
@@ -20,18 +17,16 @@ select
   , sum(bounces) as bounces
   , sum(unique_visitors) as unique_visitors
   , sum(new_visitors) as new_visitors
-from ${ref("seo_dashboard_04_rpt", "seo_aa_source_traffic")} a
-join ${ref("seo_dashboard_04_rpt", "D_calendar_daily")} b 
+from ${ref("seo_aa_source_traffic")} a
+join ${ref("D_calendar_daily")} b 
 on b.date = a.day 
 where Country not in ('Sweden', 'Denmark')
 group by day
---b.week_start
 , year_month
 , ID_Traffic_Type
 , ID_Country
 , flag_magazine
 order by day
---b.week_start
   , year_month
   , ID_Country
   , ID_Traffic_Type

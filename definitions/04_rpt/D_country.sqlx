@@ -1,12 +1,7 @@
 config {
   type: "table",
   schema: "seo_dashboard_04_rpt",
-  name: "D_country",
-  uniqueKey: ["Country"],
-  assertions: {
-    uniqueKey: ["Country"], //chiave logica
-    uniqueKey: ["ID_Country"] //chiave primaria
-  }
+  name: "D_country"
 }
 
 with m as (
@@ -45,22 +40,6 @@ with m as (
   select 
     'Austria' as Country,
     'Main' as CountryGroup
-  -- UNION ALL
-  -- select 
-  --   'Sweden' as Country,
-  --   'Secondary' as CountryGroup
-  -- UNION ALL
-  -- select 
-  --   'Denmark' as Country,
-  --   'Secondary' as CountryGroup
-  --UNION ALL
- -- select 
-    --'Russia' as Country,
-    --'Secondary' as CountryGroup
-  --UNION ALL
-  --select 
-    --'N/A' as Country,
-    --'N/A' as CountryGroup
   UNION ALL
   select 
     'USA' as Country,

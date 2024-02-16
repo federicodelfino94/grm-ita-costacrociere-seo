@@ -4,7 +4,38 @@ config {
   name: "D_calendar_daily"
 }
 
-with t as (
+with t_day_w as (
+ SELECT
+  dt,
+  date_trunc(dt, week(SATURDAY)) as week_start
+  , date_add(date_trunc(dt, week(SATURDAY)), interval 6 day) as week_end
+  , date_diff( date_add(date_trunc(dt, week(SATURDAY)), interval 6 day)
+          , date_trunc( date_add(date_trunc(dt, week(SATURDAY)), interval 6 day), month), day) + 1 delta_days_end
+  FROM 
+    UNNEST(GENERATE_DATE_ARRAY('2013-01-01', '2050-12-31', INTERVAL 1 DAY)) AS dt
+  )
+  
+  ,  t_week as (
+    select  *
+      ,case when delta_days_end <4 then extract(year from week_start) else extract(year from week_end) end as year
+      ,case when delta_days_end <4 then extract(month from week_start) else extract(month from week_end) end as month_nr
+      ,case when delta_days_end <4 then date_trunc(week_start, month) else date_trunc(week_end, month) end as month_dt
+    from t_day_w
+      
+  ),
+t_pre AS (
+  select dt as date
+        ,week_start
+        ,week_end
+        ,year
+        ,month_nr
+        ,month_dt  
+        , format_date('%B', month_dt) month_name
+        , (year * 100 ) +  dense_rank() over (partition by year  order by week_start) as week_id
+        ,dense_rank() over (partition by year  order by week_start) as week_nr
+  from t_week
+),
+t as (
 SELECT *
 , case
   when extract(month from month_dt) = 12 then year + 1 
@@ -21,16 +52,10 @@ SELECT *
   end as month_order
  , format_date('%B', month_dt) as month_aud
  , extract(year from month_dt) as year_aud
-from ${resolve("seo_dashboard_utils", "vw_calendar_saturday_friday")}
+from t_pre
 where date >= '2018-12-01' and date <= current_date()
--- (select MAX(gadate) 
---from ${resolve("seo_dashboard_04_rpt", "seo_ga_source_traffic")})
 )
 
 
 select *
 from t
-
---distinct date_trunc(date, month), fiscal_year, fiscal_quarter, month_name, week_start, month_dt from t
---where fiscal_year = 2022
---order by week_start

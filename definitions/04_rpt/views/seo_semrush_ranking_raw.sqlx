@@ -1,7 +1,7 @@
 config {
   type: "table",
   schema: "seo_dashboard_04_rpt",
-  name: "seo_semrush_ranking",
+  name: "seo_semrush_ranking_raw",
   tags: ["Semrush"]
 }
 
@@ -30,12 +30,11 @@ with tmp as (
     , SAFE_CAST(Avg_Search_Volume_Monthly AS INT) as Avg_Search_Volume_Monthly
     , FORMAT_DATE("%B %Y", PARSE_DATE('%Y-%m', REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', ''))) as date_str
     , PARSE_DATE('%Y-%m', REPLACE(lower(ARRAY_REVERSE(SPLIT(_FILE_NAME, '_'))[SAFE_OFFSET(0)]) , '.csv', '')) as date_str_order
-	from ${ref("seo_dashboard_01_temp", "seo_semrush_ranking")}
+	from ${ref("seo_semrush_ranking")}
 )
 select 
   tmp.*
   , c.ID_Country
 from tmp
-join ${ref("seo_dashboard_04_rpt", "D_country")} c
---left join ${ref("seo_dashboard_04_rpt", "D_country")} c
+join ${ref("D_country")} c
 on c.Country = tmp.Country
