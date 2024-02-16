@@ -3,31 +3,6 @@
     {
       "name": "production",
       "configOverride": {},
-      "schedules": [
-        {
-          "name": "Daily, 5am",
-          "cron": "0  5 * * *",
-          "options": {
-            "includeDependencies": true
-          },
-          "notify": [
-            {
-              "channel": "seo_dashboard",
-              "statuses": [
-                "FAILURE"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Daily 1am UTC",
-          "cron": "0 1 * * *",
-          "options": {
-            "includeDependencies": true,
-            "includeDependents": true
-          }
-        }
-      ],
       "gitRef": "master"
     }
   ],
